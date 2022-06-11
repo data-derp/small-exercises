@@ -8,7 +8,7 @@
 
    ![databricks-import](https://github.com/data-derp/documentation/blob/master/databricks/assets/databricks-import.png?raw=true)
 
-4. Import the `delta-lake-walkthrough.py` notebook: `https://raw.githubusercontent.com/data-derp/small-exercises/master/delta-lake-walkthrough/delta-lake-walkthrough.py`
+4. Import the `delta-lake-walkthrough.py` notebook using the URL method: `https://raw.githubusercontent.com/data-derp/small-exercises/master/delta-lake-walkthrough/delta-lake-walkthrough.py`
 
    ![databricks-import-url](https://github.com/data-derp/documentation/blob/master/databricks/assets/databricks-import-url.png?raw=true)
 
