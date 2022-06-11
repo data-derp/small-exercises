@@ -18,3 +18,4 @@
    ![databricks-select-cluster.png](https://github.com/data-derp/documentation/blob/master/databricks/assets/databricks-select-cluster.png?raw=true)
 
 4. Follow instructions
+
