@@ -1,11 +1,6 @@
 # Delta Lake Walkthrough
 
 ## Quickstart
-1. Open [Delta Lake Walkthrough Notebook](./delta-lake-walkthrough.dbc) in [Databricks Community Edition](https://community.cloud.databricks.com/)
-   ![databricks-import](../databricks-import.png)
-2. Follow instructions
-
-## Quickstart
 1. Set up a [Databricks Account](https://github.com/data-derp/documentation/blob/master/databricks/README.md) if you don't already have one
 2. [Create a cluster](https://github.com/data-derp/documentation/blob/master/databricks/setup-cluster.md) if you don't already have one
 
