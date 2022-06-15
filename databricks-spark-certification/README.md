@@ -8,7 +8,7 @@
 
    ![databricks-import](https://github.com/data-derp/documentation/blob/master/databricks/assets/databricks-import.png?raw=true)
 
-4. Import the `databricks-spark-certification.dbc` notebook using the URL method: [https://github.com/data-derp/small-exercises/blob/master/databricks-spark-certification.dbc](https://github.com/data-derp/small-exercises/blob/master/databricks-spark-certification/databricks-spark-certification.dbc)
+4. Import the `databricks-spark-certification.dbc` notebook using the URL method: `https://github.com/data-derp/small-exercises/blob/master/databricks-spark-certification/databricks-spark-certification.dbc`
 
    ![databricks-import-url](https://github.com/data-derp/documentation/blob/master/databricks/assets/databricks-import-url.png?raw=true)
 
