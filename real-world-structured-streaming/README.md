@@ -9,7 +9,7 @@
 
    ![databricks-import](https://github.com/data-derp/documentation/blob/master/databricks/assets/databricks-import.png?raw=true)
 
-4. Import the `[Exercise] Real World Structured Streaming.dbc` notebook using the URL method: `https://github.com/data-derp/small-exercises/blob/master/real-world-structured-streaming/%5BExercise%5D%20Real%20World%20Structured%20Streaming.dbc`
+4. Import the `[Exercise] Real World Structured Streaming.dbc` notebook using the URL method: `https://github.com/data-derp/small-exercises/blob/master/real-world-structured-streaming/%5BExercise%5D%20Real%20World%20Structured%20Streaming.py`
 
    ![databricks-import-url](https://github.com/data-derp/documentation/blob/master/databricks/assets/databricks-import-url.png?raw=true)
 
@@ -19,6 +19,6 @@
 
 6. Follow instructions
 
-7. When you're done you can see the solutions by importing the `[Solution] Real World Structured Streaming.dbc` notebook using the URL method: `https://github.com/data-derp/small-exercises/blob/master/real-world-structured-streaming/%5BSolution%5D%20Real%20World%20Structured%20Streaming.dbc`
+7. When you're done you can see the solutions by importing the `[Solution] Real World Structured Streaming.dbc` notebook using the URL method: `https://github.com/data-derp/small-exercises/blob/master/real-world-structured-streaming/%5BSolution%5D%20Real%20World%20Structured%20Streaming.py`
 
    ![databricks-import-url](https://github.com/data-derp/documentation/blob/master/databricks/assets/databricks-import-url.png?raw=true)
