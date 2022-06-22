@@ -24,7 +24,13 @@
 
 # COMMAND ----------
 
-db = "deltadb" # create an internal metastore on DBFS (Databricks File System) to keep track of tables
+# CHANGE ME to a unique team name
+# create an internal metastore on DBFS (Databricks File System) to keep track of tables
+db = "YOURAWESOMETEAMNAME"
+
+assert db != "YOURAWESOMETEAMNAME", "You didn't read the instructions :) Please change the db to a unique team name"
+
+# COMMAND ----------
 
 spark.sql(f"CREATE DATABASE IF NOT EXISTS {db}")
 spark.sql(f"USE {db}")
@@ -111,7 +117,7 @@ def cleanup_paths_and_tables():
     dbutils.fs.rm("/tmp/delta_demo/", True)
     dbutils.fs.rm("file:/dbfs/tmp/delta_demo/loans_parquet/", True)
         
-    for table in ["deltadb.loans_parquet", "deltadb.loans_delta", "deltadb.loans_delta2"]:
+    for table in [f"{db}.loans_parquet", f"{db}.loans_delta", f"{db}.loans_delta2"]:
         spark.sql(f"DROP TABLE IF EXISTS {table}")
         database, table_only = table.split(".")
         dbutils.fs.rm(f"dbfs:/user/hive/warehouse/{database}.db/{table_only}/", True)
@@ -121,7 +127,7 @@ cleanup_paths_and_tables()
 
 # COMMAND ----------
 
-# MAGIC %sh mkdir -p /dbfs/tmp/delta_demo/loans_parquet/; wget -O /dbfs/tmp/delta_demo/loans_parquet/loans.parquet https://pages.databricks.com/rs/094-YMS-629/images/SAISEU19-loan-risks.snappy.parquet
+# MAGIC %sh mkdir -p /dbfs/tmp/delta_demo/loans_parquet/; wget -O /dbfs/tmp/delta_demo/loans_parquet/loans.parquet https://github.com/data-derp/small-exercises/blob/master/real-world-structured-streaming/loan-risks.snappy.parquet?raw=true
 
 # COMMAND ----------
 
@@ -136,8 +142,8 @@ import os
 import sys
 sys.stdout.fileno = lambda: False
 
-LOAN_RISKS = "https://pages.databricks.com/rs/094-YMS-629/images/SAISEU19-loan-risks.snappy.parquet"
-LOAN_RISKS_FILENAME = wget.download(LOAN_RISKS, LOAN_RISKS.split("/")[-1].replace(".snappy.parquet", ".parquet"))
+LOAN_RISKS = "https://github.com/data-derp/small-exercises/blob/master/real-world-structured-streaming/loan-risks.snappy.parquet?raw=true"
+LOAN_RISKS_FILENAME = wget.download(LOAN_RISKS, LOAN_RISKS.split("/")[-1].replace(".snappy.parquet", ".parquet").replace("?raw=true", ""))
 print(LOAN_RISKS_FILENAME)
 
 EXERCISE_DIR = "dbfs:/FileStore/delta-lake-walkthrough/"
@@ -545,6 +551,10 @@ spark.sql("SELECT * FROM merge_table").show()
 # COMMAND ----------
 
 cleanup_paths_and_tables()
+
+# COMMAND ----------
+
+spark.sql(f"DROP SCHEMA IF EXISTS {db}")
 
 # COMMAND ----------
 
