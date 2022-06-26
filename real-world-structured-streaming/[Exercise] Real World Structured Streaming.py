@@ -25,6 +25,10 @@
 
 # COMMAND ----------
 
+# MAGIC %pip install wget
+
+# COMMAND ----------
+
 # MAGIC %scala
 # MAGIC 
 # MAGIC val nodeCount = sc.statusTracker.getExecutorInfos.length // for the entire cluster
@@ -61,61 +65,13 @@ spark.sql("SET spark.databricks.delta.properties.defaults.autoOptimize.optimizeW
 
 # COMMAND ----------
 
-import random
-from datetime import datetime
-import pyspark.sql.functions as F
-from pyspark.sql.types import *
-
-
-def my_checkpoint_dir(): 
-  return "/tmp/delta_demo/chkpt/%s" % str(random.randint(0, 10000))
-
-# User-defined function to generate random state
-@udf(returnType=StringType())
-def random_state():
-  return str(random.choice(["CA", "TX", "NY", "WA"]))
-
-
-# Function to start a streaming query with a stream of randomly generated load data and append to the parquet table
-def generate_and_append_data_stream(table_format, table_name, schema_ok=False, workload_source="structured-streaming"):
-  """
-  We're going to generate our own data from scratch using a simple "Rate Source".
-  A Rate source generates data at the specified number of rows per second, each row containing the following columns:
-    - timestamp (TimestampType)
-    - value (LongType)
-  Where timestamp is the time of message dispatch, and value is of Long type containing the message count, starting from 0 as the first row. 
-  This source is intended for testing and benchmarking. You can also have a look at "Socket Source"
-  
-  https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html
-  """
-  
-  raw_stream_data = (
-    spark
-      .readStream
-      .format("rate") # search for "Rate source" on this page https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html
-      .option("rowsPerSecond", 500)
-      .load()
-  )
-  
-  stream_data = (
-    raw_stream_data
-      .withColumn("loan_id", 10000 + F.col("value"))
-      .withColumn("funded_amnt", (F.rand() * 5000 + 5000).cast("integer"))
-      .withColumn("paid_amnt", F.col("funded_amnt") - (F.rand() * 2000))
-      .withColumn("addr_state", random_state())
-      .withColumn("workload_source", F.lit(workload_source))
-  )
-    
-  if schema_ok:
-    stream_data = stream_data.select("loan_id", "funded_amnt", "paid_amnt", "addr_state", "workload_source", "timestamp")
-      
-  query = (stream_data.writeStream
-    .format(table_format)
-    .option("checkpointLocation", my_checkpoint_dir())
-    .trigger(processingTime = "5 seconds")
-    .table(table_name))
-
-  return query
+'''
+Clear out existing working directory
+'''
+current_user=dbutils.notebook.entry_point.getDbutils().notebook().getContext().userName().get().split("@")[0]
+working_directory=f"/FileStore/{current_user}/structuredStreaming"
+dbutils.fs.rm(working_directory, True)
+dbutils.fs.mkdirs(working_directory)
 
 # COMMAND ----------
 
@@ -125,8 +81,7 @@ import pyspark.sql.functions as F
 from pyspark.sql.types import *
 
 
-def my_checkpoint_dir(): 
-  return "/tmp/delta_demo/chkpt/%s" % str(random.randint(0, 10000))
+my_checkpoint_dir = "{working_directory}/chkpt/%s" % str(random.randint(0, 10000))
 
 # User-defined function to generate random state
 @udf(returnType=StringType())
@@ -169,7 +124,7 @@ def generate_and_append_data_stream(table_format, table_name, schema_ok=False, w
       
   query = (stream_data.writeStream
     .format(table_format)
-    .option("checkpointLocation", my_checkpoint_dir())
+    .option("checkpointLocation", my_checkpoint_dir)
     .trigger(processingTime = "5 seconds")
     .table(table_name))
 
@@ -186,13 +141,11 @@ def stop_all_streams():
         except:
             pass
     print("Stopped all streams")
-    dbutils.fs.rm("/tmp/delta_demo/chkpt/", True) # delete all checkpoints
+    dbutils.fs.rm(my_checkpoint_dir, True) # delete all checkpoints
     return
 
-def cleanup_paths_and_tables():
-    dbutils.fs.rm("/tmp/delta_demo/", True)
-    dbutils.fs.rm("file:/dbfs/tmp/delta_demo/loans_parquet/", True)
-        
+def cleanup_paths_and_tables():  
+    dbutils.fs.rm(f"{my_checkpoint_dir}", True) # delete all checkpoints
     for table in [f"{db}.loans_parquet", f"{db}.loans_delta", f"{db}.loans_delta2"]:
         spark.sql(f"DROP TABLE IF EXISTS {table}")
     return
@@ -201,7 +154,26 @@ cleanup_paths_and_tables()
 
 # COMMAND ----------
 
-# MAGIC %sh mkdir -p /dbfs/tmp/delta_demo/loans_parquet/; wget -O /dbfs/tmp/delta_demo/loans_parquet/loans.parquet https://github.com/data-derp/small-exercises/blob/master/real-world-structured-streaming/loan-risks.snappy.parquet?raw=true
+# Download files to the local filesystem
+import os
+import wget
+import sys
+import shutil
+
+ 
+sys.stdout.fileno = lambda: False # prevents AttributeError: 'ConsoleBuffer' object has no attribute 'fileno'   
+
+LOCAL_DIR = f"{os.getcwd()}/{current_user}/structuredStreaming"
+
+if os.path.isdir(LOCAL_DIR): shutil.rmtree(LOCAL_DIR)
+os.makedirs(LOCAL_DIR)
+url = "https://github.com/data-derp/small-exercises/blob/master/real-world-structured-streaming/loan-risks.snappy.parquet?raw=true"
+
+filename = url.split("/")[-1].replace("?raw=true", "")
+saved_filename = wget.download(url, out = f"{LOCAL_DIR}/{filename}")
+print(f"Saved in: {saved_filename}")
+
+dbutils.fs.cp(f"file:{saved_filename}", f"{working_directory}/{filename}")
 
 # COMMAND ----------
 
@@ -211,9 +183,7 @@ cleanup_paths_and_tables()
 
 # COMMAND ----------
 
-parquet_path = "file:/dbfs/tmp/delta_demo/loans_parquet/"
-
-df = (spark.read.format("parquet").load(parquet_path)
+df = (spark.read.format("parquet").load(f"{working_directory}/{filename}")
       .withColumn("workload_source", F.lit("batch"))
       .withColumn("timestamp", F.current_timestamp()))
 
@@ -592,20 +562,6 @@ dbutils.notebook.exit("stop") # sets a breakpoint, avoids running cells below if
 
 # MAGIC %md
 # MAGIC ##### Cleanup
-
-# COMMAND ----------
-
-# Function to stop all streaming queries 
-def stop_all_streams():
-    print("Stopping all streams")
-    for s in spark.streams.active:
-        try:
-            s.stop()
-        except:
-            pass
-    print("Stopped all streams")
-    dbutils.fs.rm("/tmp/delta_demo/chkpt/", True) # delete all checkpoints
-    return
 
 # COMMAND ----------
 

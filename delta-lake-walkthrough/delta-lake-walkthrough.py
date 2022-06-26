@@ -24,6 +24,10 @@
 
 # COMMAND ----------
 
+# MAGIC %pip install wget
+
+# COMMAND ----------
+
 # CHANGE ME to a unique team name
 # create an internal metastore on DBFS (Databricks File System) to keep track of tables
 db = "YOURAWESOMETEAMNAME"
@@ -40,14 +44,23 @@ spark.sql("SET spark.databricks.delta.properties.defaults.autoOptimize.optimizeW
 
 # COMMAND ----------
 
+'''
+Clear out existing working directory
+'''
+current_user=dbutils.notebook.entry_point.getDbutils().notebook().getContext().userName().get().split("@")[0]
+working_directory=f"/FileStore/{current_user}/deltaDemo"
+dbutils.fs.rm(working_directory, True)
+dbutils.fs.mkdirs(working_directory)
+
+# COMMAND ----------
+
 import random
 from datetime import datetime
 import pyspark.sql.functions as F
 from pyspark.sql.types import *
 
 
-def my_checkpoint_dir(): 
-  return "/tmp/delta_demo/chkpt/%s" % str(random.randint(0, 10000))
+my_checkpoint_dir = "{working_directory}/chkpt/%s" % str(random.randint(0, 10000))
 
 # User-defined function to generate random state
 @udf(returnType=StringType())
@@ -89,15 +102,11 @@ def generate_and_append_data_stream(table_format, table_name, schema_ok=False, w
       
   query = (stream_data.writeStream
     .format(table_format)
-    .option("checkpointLocation", my_checkpoint_dir())
+    .option("checkpointLocation", my_checkpoint_dir)
     .trigger(processingTime = "5 seconds")
     .table(table_name))
 
   return query
-
-# COMMAND ----------
-
-dbutils.fs.ls("dbfs:/user/hive/warehouse/")
 
 # COMMAND ----------
 
@@ -110,53 +119,39 @@ def stop_all_streams():
         except:
             pass
     print("Stopped all streams")
-    dbutils.fs.rm("/tmp/delta_demo/chkpt/", True) # delete all checkpoints
+    dbutils.fs.rm(my_checkpoint_dir, True) # delete all checkpoints
     return
 
-def cleanup_paths_and_tables():
-    dbutils.fs.rm("/tmp/delta_demo/", True)
-    dbutils.fs.rm("file:/dbfs/tmp/delta_demo/loans_parquet/", True)
-        
+def cleanup_paths_and_tables():  
+    dbutils.fs.rm(f"{my_checkpoint_dir}", True) # delete all checkpoints
     for table in [f"{db}.loans_parquet", f"{db}.loans_delta", f"{db}.loans_delta2"]:
         spark.sql(f"DROP TABLE IF EXISTS {table}")
-        database, table_only = table.split(".")
-        dbutils.fs.rm(f"dbfs:/user/hive/warehouse/{database}.db/{table_only}/", True)
     return
     
 cleanup_paths_and_tables()
 
 # COMMAND ----------
 
-# MAGIC %sh mkdir -p /dbfs/tmp/delta_demo/loans_parquet/; wget -O /dbfs/tmp/delta_demo/loans_parquet/loans.parquet https://github.com/data-derp/small-exercises/blob/master/real-world-structured-streaming/loan-risks.snappy.parquet?raw=true
-
-# COMMAND ----------
-
-# MAGIC %sh pip install wget
-
-# COMMAND ----------
-
-import wget
+# Download files to the local filesystem
 import os
-
-# workaround for "'ConsoleBuffer' object has no attribute 'fileno'" on the wget.download
+import wget
 import sys
-sys.stdout.fileno = lambda: False
+import shutil
 
-LOAN_RISKS = "https://github.com/data-derp/small-exercises/blob/master/real-world-structured-streaming/loan-risks.snappy.parquet?raw=true"
-LOAN_RISKS_FILENAME = wget.download(LOAN_RISKS, LOAN_RISKS.split("/")[-1].replace(".snappy.parquet", ".parquet").replace("?raw=true", ""))
-print(LOAN_RISKS_FILENAME)
+ 
+sys.stdout.fileno = lambda: False # prevents AttributeError: 'ConsoleBuffer' object has no attribute 'fileno'   
 
-EXERCISE_DIR = "dbfs:/FileStore/delta-lake-walkthrough/"
-dbutils.fs.rm(EXERCISE_DIR, True) # delete directory, start fresh
-dbutils.fs.mkdirs(EXERCISE_DIR)
+LOCAL_DIR = f"{os.getcwd()}/{current_user}/deltaDemo"
 
-LOCAL_DIR = os.getcwd()
-print("LOCAL_DIR:", LOCAL_DIR)
+if os.path.isdir(LOCAL_DIR): shutil.rmtree(LOCAL_DIR)
+os.makedirs(LOCAL_DIR)
+url = "https://github.com/data-derp/small-exercises/blob/master/real-world-structured-streaming/loan-risks.snappy.parquet?raw=true"
 
-dbutils.fs.cp(f"file:{LOCAL_DIR}/{LOAN_RISKS_FILENAME}", f"""{EXERCISE_DIR}/{LOAN_RISKS_FILENAME}""")
-  
-DBFS_FILEPATHS = [x.path for x in dbutils.fs.ls(EXERCISE_DIR)]
-print(DBFS_FILEPATHS)
+filename = url.split("/")[-1].replace("?raw=true", "").replace("snappy.parquet", "parquet")
+saved_filename = wget.download(url, out = f"{LOCAL_DIR}/{filename}")
+print(f"Saved in: {saved_filename}")
+
+dbutils.fs.cp(f"file:{saved_filename}", f"{working_directory}/{filename}")
 
 # COMMAND ----------
 
@@ -192,7 +187,7 @@ print(DBFS_FILEPATHS)
 
 # COMMAND ----------
 
-parquet_path = f"""dbfs:/FileStore/delta-lake-walkthrough/{LOAN_RISKS_FILENAME}"""
+parquet_path = f"{working_directory}/{filename}"
 
 df = (spark.read.format("parquet").load(parquet_path)
       .withColumn("workload_source", F.lit("batch"))
@@ -201,7 +196,7 @@ df = (spark.read.format("parquet").load(parquet_path)
 df.write.format("delta").mode("overwrite").saveAsTable("loans_delta") # save DataFrame as a registered table in your Databricks-managed metastore
 
 delta_df = spark.sql("select * from loans_delta") # read from a registered table within your metastore
-delta_df.write.format("parquet").mode("overwrite").save("dbfs:/tmp/delta_demo/loans_parquet/") # you can also save your parquets to a specific path (doesn't have to be saved as a registered table)
+delta_df.write.format("parquet").mode("overwrite").save(f"{working_directory}/loans_parquet/") # you can also save your parquets to a specific path (doesn't have to be saved as a registered table)
 
 # COMMAND ----------
 
@@ -209,10 +204,19 @@ delta_df.write.format("parquet").mode("overwrite").save("dbfs:/tmp/delta_demo/lo
 
 # COMMAND ----------
 
+print(f"Your parquet file is located here: {working_directory}/loans_parquet/")
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC Use the above output to create a table from the parquet location.
+
+# COMMAND ----------
+
 # MAGIC %sql
 # MAGIC CREATE TABLE loans_delta2
 # MAGIC USING delta
-# MAGIC AS SELECT * FROM parquet.`/tmp/delta_demo/loans_parquet/`
+# MAGIC AS SELECT * FROM parquet.`/FileStore/YOURUSERNAME/deltaDemo/loans_parquet/`
 
 # COMMAND ----------
 
@@ -220,7 +224,16 @@ delta_df.write.format("parquet").mode("overwrite").save("dbfs:/tmp/delta_demo/lo
 
 # COMMAND ----------
 
-# MAGIC %sql CONVERT TO DELTA parquet.`/tmp/delta_demo/loans_parquet`
+print(f"Your parquet file is located here: {working_directory}/loans_parquet/")
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC Use the above output to create a table from the parquet location.
+
+# COMMAND ----------
+
+# MAGIC %sql CONVERT TO DELTA parquet.`/FileStore/YOURUSERNAME/deltaDemo/loans_parquet/`
 
 # COMMAND ----------
 
