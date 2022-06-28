@@ -57,7 +57,7 @@ assert db != "YOURAWESOMETEAMNAME", "You didn't read the instructions :) Please 
 
 # COMMAND ----------
 
-spark.sql(f"CREATE DATABASE IF NOT EXISTS {db}")
+spark.sql(f"CREATE DATABASE IF NOT EXISTS {db}") # must not contain dashes (-)
 spark.sql(f"USE {db}")
 
 spark.sql("SET spark.databricks.delta.formatCheck.enabled = false")
