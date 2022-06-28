@@ -51,13 +51,13 @@
 
 # CHANGE ME to a unique team name
 # create an internal metastore on DBFS (Databricks File System) to keep track of tables
-db = "YOURAWESOMETEAMNAME"
+db = "YOURAWESOMETEAMNAME" # must not contain dashes (-)
 
 assert db != "YOURAWESOMETEAMNAME", "You didn't read the instructions :) Please change the db to a unique team name"
 
 # COMMAND ----------
 
-spark.sql(f"CREATE DATABASE IF NOT EXISTS {db}") # must not contain dashes (-)
+spark.sql(f"CREATE DATABASE IF NOT EXISTS {db}") 
 spark.sql(f"USE {db}")
 
 spark.sql("SET spark.databricks.delta.formatCheck.enabled = false")
