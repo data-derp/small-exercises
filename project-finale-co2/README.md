@@ -1,4 +1,6 @@
-## Project Finale CO2
+# Project Finale CO2 (DEPRECATED)
+NOTE: this directory is deprecated. Please find the new instructions [here](https://github.com/data-derp/exercise-co2-vs-temperature-databricks/tree/master/finale)
+
 1. Ensure your AWS bucket containing the relevant project data exists (if it doesn't or if you have no idea what this is, please see [Fresh Start](#fresh-start))
 2. [Make your existing bucket public](#make-your-bucket-public)
 3. Set up a [Databricks Account](https://github.com/data-derp/documentation/blob/master/databricks/README.md) if you don't already have one
