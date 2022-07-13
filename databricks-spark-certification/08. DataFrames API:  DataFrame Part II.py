@@ -10,6 +10,16 @@
 
 # COMMAND ----------
 
+# Turn off AQE
+# AQE was introduced in Spark 3.0 which optimises your queries
+# We turn it off here to demonstrate natural behaviour
+# More info: https://docs.databricks.com/spark/latest/spark-sql/aqe.html#enable-and-disable-adaptive-query-execution
+
+print(spark.conf.get('spark.databricks.optimizer.adaptive.enabled'))
+spark.conf.set('spark.databricks.optimizer.adaptive.enabled','false')
+
+# COMMAND ----------
+
 fire_incidents = "/databricks-datasets/learning-spark-v2/sf-fire/sf-fire-incidents.csv"
 fire_calls = "/databricks-datasets/learning-spark-v2/sf-fire/sf-fire-calls.csv"
 
