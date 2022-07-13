@@ -127,7 +127,7 @@ df.select(
 df.select(
   f.stddev(f.col("hum")).alias("stddev(hum)"),
   f.variance(f.col("hum")).alias("variance(hum)"),
-  f.mean(f.col("hum")).alias("variance(hum)"),
+  f.mean(f.col("hum")).alias("mean(hum)"),
 ).show()
 
 
@@ -155,7 +155,7 @@ from datetime import datetime, time
 from pyspark.sql.types import StringType
 
 # UDF1 registration method 1
-len_counter = udf(lambda s: s.upper(), StringType())
+to_upper = udf(lambda s: s.upper(), StringType())
 
 # UDF2 registration method 2 (using decorator)
 @udf
@@ -165,7 +165,7 @@ def t_year(t):
 
 # Using registred UDF
 df2.select(
-  len_counter(f.col("province")),
+  to_upper(f.col("province")),
   t_year(f.col("symptom_onset_date"))
 ).show()
 
