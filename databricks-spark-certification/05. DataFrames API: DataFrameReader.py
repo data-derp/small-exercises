@@ -8,6 +8,10 @@
 
 # COMMAND ----------
 
+# MAGIC %run ./init_data
+
+# COMMAND ----------
+
 # MAGIC %md 
 # MAGIC The DataFrame reader API can be accessed through the SparkSession using the following API
 # MAGIC 

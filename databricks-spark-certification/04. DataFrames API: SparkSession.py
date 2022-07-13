@@ -8,6 +8,10 @@
 
 # COMMAND ----------
 
+# MAGIC %run ./init_data
+
+# COMMAND ----------
+
 import pandas as pd
 import os
 

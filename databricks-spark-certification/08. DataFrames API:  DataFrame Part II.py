@@ -10,13 +10,7 @@
 
 # COMMAND ----------
 
-# Turn off AQE
-# AQE was introduced in Spark 3.0 which optimises your queries
-# We turn it off here to demonstrate natural behaviour
-# More info: https://docs.databricks.com/spark/latest/spark-sql/aqe.html#enable-and-disable-adaptive-query-execution
-
-print(spark.conf.get('spark.databricks.optimizer.adaptive.enabled'))
-spark.conf.set('spark.databricks.optimizer.adaptive.enabled','false')
+# MAGIC %run ./init
 
 # COMMAND ----------
 
@@ -84,7 +78,7 @@ outer_join_df = df_fire_incidents.alias("df1")\
     f.col("df1.`Incident Number`") == f.col("df2.`Incident Number`"), 
     "outer"
   )
-# Display Incident number that is NOT present in df1 but  present in df2
+# Display Incident number that is NOT present in df1 but present in df2
 display(outer_join_df.filter(f.col("df1.`Incident Number`").isNull()).select('df2.`Incident Number`').limit(1))
 
 

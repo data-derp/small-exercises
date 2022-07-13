@@ -21,13 +21,7 @@
 
 # COMMAND ----------
 
-# Turn off AQE
-# AQE was introduced in Spark 3.0 which optimises your shuffling (you'll learn about it below) so even if you set your # of partitions in the Spark Configuration, it will reduce them because it knows how much data you are working with and optimises it
-# We turn it off here to demonstrate how to play with Shuffling in the upcoming exercises
-# More info: https://docs.databricks.com/spark/latest/spark-sql/aqe.html#enable-and-disable-adaptive-query-execution
-
-print(spark.conf.get('spark.databricks.optimizer.adaptive.enabled'))
-spark.conf.set('spark.databricks.optimizer.adaptive.enabled','false')
+# MAGIC %run ./init_data
 
 # COMMAND ----------
 

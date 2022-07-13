@@ -11,13 +11,7 @@
 
 # COMMAND ----------
 
-# Turn off AQE
-# AQE was introduced in Spark 3.0 which optimises your queries
-# We turn it off here to demonstrate natural behaviour
-# More info: https://docs.databricks.com/spark/latest/spark-sql/aqe.html#enable-and-disable-adaptive-query-execution
-
-print(spark.conf.get('spark.databricks.optimizer.adaptive.enabled'))
-spark.conf.set('spark.databricks.optimizer.adaptive.enabled','false')
+# MAGIC %run ./init
 
 # COMMAND ----------
 
@@ -68,7 +62,7 @@ df.select(f.approx_count_distinct("AT", 0.1)).show() #lesser exeution time, maxi
 
 #sum operations
 df.select(f.sum("AT")).show()
-df.select(f.sumDistinct("V")).show()
+df.select(f.sum_distinct("V")).show()
 
 # COMMAND ----------
 
@@ -181,7 +175,7 @@ df4.select(f.array_contains('integers', 1)).show()
 
 # COMMAND ----------
 
-'''Returns a new row for each element in the given array or map. Uses the default column name col for elements in the array and key and value for elements in the map unless specified otherwise.'''
+# Returns a new row for each element in the given array or map. Uses the default column name col for elements in the array and key and value for elements in the map unless specified otherwise.
 # explode
 from pyspark.sql import Row
 import pyspark.sql.functions as f
@@ -248,6 +242,12 @@ df2.sort(f.col("temp").desc_nulls_first()).show(5)
 # MAGIC 2. Try rounding off the result of sum() to 3 decimal places.
 # MAGIC 3. Try getting the max() out of the totals( sum() ) of all the columns of the data frame.
 # MAGIC 4. Try applying max() & min() on the count of each column available in data frame.
+
+# COMMAND ----------
+
+'''
+Write code here
+'''
 
 # COMMAND ----------
 
