@@ -196,20 +196,46 @@ data = data.select(*[col for col in data.columns if col not in ['year']], data.y
 
 # COMMAND ----------
 
+
+
+# COMMAND ----------
+
+# Create a unique table name from your current_user
+import re
+db = re.sub('[^A-Za-z0-9]+', '', current_user)
+
+spark.sql(f"CREATE DATABASE IF NOT EXISTS {db}")
+spark.sql(f"USE {db}")
+
+table_name = "wrangling_with_spark_6_bucket_data"
+
+# Clean up tables by the the same name
+dbutils.fs.rm(f'/user/hive/warehouse/{db}.db', True)
+spark.sql(f"DROP TABLE {table_name}")
+
+# COMMAND ----------
+
 numberOfBucket = 10
 columnToBucketBy = 'year'
-
-#TODO: set a unique table name
-table_name="someawesometeamname"
-assert table_name != "someawesometeamname", "Please change the table_name to something unique (must be all lowercase)"
-
-dbutils.fs.rm(f'/user/hive/warehouse/{table_name}', True)
 
 data.write.format('parquet').bucketBy(numberOfBucket, columnToBucketBy).saveAsTable(table_name)
 
 # COMMAND ----------
 
-dbutils.fs.ls(f'/user/hive/warehouse/{table_name}')
+dbutils.fs.ls(f'/user/hive/warehouse/{db}.db')
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC Also, you can see your data by going to the **Data** tab on the left
+
+# COMMAND ----------
+
+# Finally, remove your table since we won't use it for the rest of the exercise
+# In practice, you might keep these around for longer for others to query
+
+dbutils.fs.rm(f'/user/hive/warehouse/{db}.db', True)
+spark.sql(f"DROP TABLE {table_name}")
 
 # COMMAND ----------
 

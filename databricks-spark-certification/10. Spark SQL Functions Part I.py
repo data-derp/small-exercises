@@ -238,7 +238,7 @@ df2.sort(f.col("temp").desc_nulls_first()).show(5)
 # MAGIC %md
 # MAGIC 
 # MAGIC Aggregate Function Exercises
-# MAGIC 1. Try sumDistinct() a data frame.
+# MAGIC 1. Try sum_distinct() a data frame.
 # MAGIC 2. Try rounding off the result of sum() to 3 decimal places.
 # MAGIC 3. Try getting the max() out of the totals( sum() ) of all the columns of the data frame.
 # MAGIC 4. Try applying max() & min() on the count of each column available in data frame.
