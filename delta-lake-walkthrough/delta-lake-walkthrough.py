@@ -28,22 +28,6 @@
 
 # COMMAND ----------
 
-# CHANGE ME to a unique team name
-# create an internal metastore on DBFS (Databricks File System) to keep track of tables
-db = "YOURAWESOMETEAMNAME"
-
-assert db != "YOURAWESOMETEAMNAME", "You didn't read the instructions :) Please change the db to a unique team name"
-
-# COMMAND ----------
-
-spark.sql(f"CREATE DATABASE IF NOT EXISTS {db}")
-spark.sql(f"USE {db}")
-
-spark.sql("SET spark.databricks.delta.formatCheck.enabled = false")
-spark.sql("SET spark.databricks.delta.properties.defaults.autoOptimize.optimizeWrite = true")
-
-# COMMAND ----------
-
 '''
 Clear out existing working directory
 '''
@@ -51,6 +35,17 @@ current_user=dbutils.notebook.entry_point.getDbutils().notebook().getContext().u
 working_directory=f"/FileStore/{current_user}/deltaDemo"
 dbutils.fs.rm(working_directory, True)
 dbutils.fs.mkdirs(working_directory)
+
+# COMMAND ----------
+
+import re
+db = db = re.sub('[^A-Za-z0-9]+', '', current_user)
+
+spark.sql(f"CREATE DATABASE IF NOT EXISTS {db}")
+spark.sql(f"USE {db}")
+
+spark.sql("SET spark.databricks.delta.formatCheck.enabled = false")
+spark.sql("SET spark.databricks.delta.properties.defaults.autoOptimize.optimizeWrite = true")
 
 # COMMAND ----------
 
