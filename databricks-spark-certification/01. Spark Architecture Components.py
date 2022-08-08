@@ -6,7 +6,7 @@
 # MAGIC 
 # MAGIC Apache Spark is a <b>unified computing engine</b> and set of <b>libraries</b> for <b>parallel data processing</b> on **computer clusters**. This definition has 3 components that have been broken down below:
 # MAGIC 1. **Unified**: Spark can deal with tasks ranging from simple data loading to machine learning and streaming data processing at scale
-# MAGIC 2. **Computing engine**: Spark is not a storage system like Hadoop but it's features are leveraged for transforming copious amounts of data at high speed. Spark integrates with a lot of persistent storage systems like Apache Hadoop, Amazon S3, Azure Data Lake etc. 
+# MAGIC 2. **Computing engine**: Spark is not a storage system like Hadoop but its features are leveraged for transforming copious amounts of data at high speed. Spark integrates with a lot of persistent storage systems like Apache Hadoop, Amazon S3, Azure Data Lake etc. 
 # MAGIC 3. **Libraries**: Spark includes libraries for SQL and structured data, machine learning, stream processing and graph analytics
 # MAGIC <br>
 # MAGIC 
