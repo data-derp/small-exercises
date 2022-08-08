@@ -69,7 +69,7 @@ distData.collect()
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC 💡 _It's always good to peak into the data that you are about to read_.
+# MAGIC 💡 _It's always good to peek into the data that you are about to read_.
 
 # COMMAND ----------
 
