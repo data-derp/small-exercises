@@ -97,9 +97,10 @@ def generate_and_append_data_stream(table_format, table_name, schema_ok=False, w
       
   query = (stream_data.writeStream
     .format(table_format)
-    .option("checkpointLocation", my_checkpoint_dir)
+    .option("checkpointLocation", f"{my_checkpoint_dir}/{workload_source}/")
     .trigger(processingTime = "5 seconds")
-    .table(table_name))
+    .table(table_name)
+  )
 
   return query
 
