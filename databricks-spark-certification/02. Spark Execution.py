@@ -1,14 +1,14 @@
 # Databricks notebook source
 # DBTITLE 1,Components of spark query execution
 # MAGIC %md
-# MAGIC 1. **Cluster manager**: Is responsible of starting worker processes on worker nodes. Manages the lifecycle of the worker processes. 
-# MAGIC 2. **Worker node**: Worked nodes are compute resources that host the worker processes
-# MAGIC 3. **Cluster driver process**: Cluster driver process is tied to the culster manager is respunsible for serving requests to start cluster worker processes
-# MAGIC 4. **Cluster worker process**: Cluster worker processes are tied to the worker nodes are are responsible for maintaining Spark Driver process and Executor processes
-# MAGIC 5. **Driver process**: Driver process either reside on a worker node(cluster mode execution) or a client node(client mode execution). They are reponsible for execution of code and exchange of data between executor processes
-# MAGIC 5. **Executor process**: Executor process are responsible for execution of spark queries
-# MAGIC 6. **Client node**: Client node are where client application reside. 
-# MAGIC 6. **Client application**: Client application is where you would write your spark code !
+# MAGIC 1. **Cluster manager**: Manages the lifecycle of the worker processes; Starts worker processes on worker nodes; Typically managed by service provider (e.g. Databricks).
+# MAGIC 3. **Cluster driver process**: Serves requests to start cluster worker processes; Tied to the cluster manager.
+# MAGIC 4. **Cluster worker process**: Maintains Spark Executor processes and Driver process; Tied to the worker nodes.
+# MAGIC 2. **Worker node**: Hosts the worker processes; In cluster mode, also runs driver process; Compute resources (VM, container, serverless function).
+# MAGIC 6. **Client node**: Client mode only; Hosts the application code.
+# MAGIC 5. **Driver process**: Executes code and exchanges data between executor processes; Either resides on a worker node (cluster mode) or a client node (client mode).
+# MAGIC 5. **Executor process**: Executes Spark queries.
+# MAGIC 6. **Client application**: Your spark code! 🤗
 
 # COMMAND ----------
 
@@ -72,7 +72,7 @@
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC 💡 _Spark works on **lazy execution** paradigm i.e. operations can be chained and will not be performed until the ressult in required_
+# MAGIC 💡 _Spark works on **lazy execution** paradigm i.e. operations can be chained and will not be performed until the result is required_
 
 # COMMAND ----------
 

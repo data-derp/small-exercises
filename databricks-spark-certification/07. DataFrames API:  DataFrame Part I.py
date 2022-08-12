@@ -1,7 +1,7 @@
 # Databricks notebook source
 # DBTITLE 1,Using action such as take(), collect(), show() etc.
 # MAGIC %md
-# MAGIC Actions are triggers that tell Spark dirver process to run the queries, aggregate the results and return them to client application. Following are some action commands:
+# MAGIC Actions are triggers that tell Spark driver process to run the queries, aggregate the results and return them to client application. Following are some action commands:
 # MAGIC 1. take
 # MAGIC 2. Collect
 # MAGIC 3. show

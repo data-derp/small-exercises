@@ -97,7 +97,7 @@ spark.range(100).collect()
 
 # MAGIC %md 
 # MAGIC ###### DataFrameReaders
-# MAGIC DataFrameReader class in pyspark let's one read data into a spark DataFrame
+# MAGIC DataFrameReader class in pyspark lets one read data into a spark DataFrame
 
 # COMMAND ----------
 
@@ -140,7 +140,7 @@ display(df)
 
 # COMMAND ----------
 
-#Spark has it's own datatypes
+#Spark has its own datatypes
 from pyspark.sql.types import IntegerType
 # define a function that adds 1 to a record
 def addOne(rec):
@@ -207,7 +207,7 @@ display(df)
 # MAGIC <br>
 # MAGIC **Steps to follow**:
 # MAGIC 1. Read the dataset
-# MAGIC 2. Define a function that catogarizes flights into the following bucket based on "ArrDelay".
+# MAGIC 2. Define a function that categorizes flights into the following bucket based on "ArrDelay".
 # MAGIC 3. Register UDF
 # MAGIC 4. Apply UDF
 
