@@ -72,7 +72,7 @@
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC 💡 _Spark works on **lazy execution** paradigm i.e. operations can be chained and will not be performed until the result is required_
+# MAGIC 💡 _Spark works on the **lazy execution** paradigm i.e. operations can be chained and will not be performed until the result is required_
 
 # COMMAND ----------
 
