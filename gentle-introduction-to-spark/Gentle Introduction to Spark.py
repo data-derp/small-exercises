@@ -38,7 +38,6 @@ dbutils.fs.ls(".") # use the FS module of dbutils to access DBFS
 # MAGIC %md
 # MAGIC 
 # MAGIC #### Your entry point to Spark:
-# MAGIC - SparkContext (often named as the variable `sc`)
 # MAGIC - SparkSession (often named as the variable `spark`)
 # MAGIC 
 # MAGIC All Databricks runtimes automatically names the SparkSession this way already.
@@ -46,17 +45,9 @@ dbutils.fs.ls(".") # use the FS module of dbutils to access DBFS
 
 # COMMAND ----------
 
-from pyspark.context import SparkContext # DEMO PURPOSES ONLY: DO NOT RUN IF USING DATABRICKS
 from pyspark.sql import SparkSession # DEMO PURPOSES ONLY: DO NOT RUN IF USING DATABRICKS
 
-sc = SparkContext.getOrCreate() # DEMO PURPOSES ONLY: DO NOT RUN IF USING DATABRICKS
 spark = SparkSession.builder.getOrCreate() # DEMO PURPOSES ONLY: DO NOT RUN IF USING DATABRICKS
-
-# COMMAND ----------
-
-# local[8] means Databricks Community Edition runs Spark locally (on one node) but parallelized across 8 cores
-# For paying customers, Databricks will run Spark on a proper, real cluster! (not a single node)
-sc
 
 # COMMAND ----------
 
@@ -102,7 +93,7 @@ display(df.withColumn("half_rating_percentage", brand_new_column))
 
 # MAGIC %md
 # MAGIC 
-# MAGIC #### What if I don't have Databricks? :(
+# MAGIC #### Experiment with Casting Columns
 
 # COMMAND ----------
 
@@ -130,7 +121,7 @@ display(df_cast_test)
 # MAGIC 
 # MAGIC #### Is there another way to create or rename columns?
 # MAGIC 
-# MAGIC Yes!
+# MAGIC Yes! Using the `alias` method
 
 # COMMAND ----------
 
@@ -174,12 +165,3 @@ spark_df.collect()
 # COMMAND ----------
 
 display(spark_df)
-
-# COMMAND ----------
-
-from pyspark.sql import SparkSession # DEMO PURPOSES ONLY: DO NOT RUN IF USING DATABRICKS
-spark = SparkSession.builder.getOrCreate() # DEMO PURPOSES ONLY: DO NOT RUN IF USING DATABRICKS
-
-# COMMAND ----------
-
-
