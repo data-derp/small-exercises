@@ -1,5 +1,5 @@
 # Databricks notebook source
-# DBTITLE 1,Components of spark query execution
+# DBTITLE 1,Components of Spark query execution
 # MAGIC %md
 # MAGIC 1. **Cluster manager**: Manages the lifecycle of the worker processes; Starts worker processes on worker nodes; Typically managed by service provider (e.g. Databricks).
 # MAGIC 3. **Cluster driver process**: Serves requests to start cluster worker processes; Tied to the cluster manager.
@@ -91,13 +91,17 @@
 
 # COMMAND ----------
 
+# MAGIC %run ./init
+
+# COMMAND ----------
+
 # MAGIC %fs 
 # MAGIC head /databricks-datasets/iot/iot_devices.json
 
 # COMMAND ----------
 
 file_path = '/databricks-datasets/iot/iot_devices.json'
-#read the data into dataframe
+# read the data into dataframe
 df = spark.read.json(file_path)
 # select a column
 projection_1 = df.selectExpr('battery_level as `Battery Level`')

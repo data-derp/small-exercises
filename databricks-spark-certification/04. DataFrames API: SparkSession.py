@@ -1,6 +1,17 @@
 # Databricks notebook source
 # MAGIC %md
-# MAGIC 💡 _Run the following command to initalise data setup and imports_
+# MAGIC # SparkSession
+# MAGIC In this notebook, we'll demonstrate how to:
+# MAGIC 1. Create a Spark DataFrame using list
+# MAGIC 2. Create a Spark DataFrame using set
+# MAGIC 3. Create a Spark DataFrame using Pandas DataFrame
+# MAGIC 4. Create a DataFrame for a range of numbers
+# MAGIC 6. Register a User Defined Functions (UDF)
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Set up the notebook
 
 # COMMAND ----------
 
@@ -12,10 +23,7 @@
 
 # COMMAND ----------
 
-import pandas as pd
-import os
-
-os.listdir(f"/dbfs{working_directory}")
+dbutils.fs.ls(working_directory)
 
 # COMMAND ----------
 
@@ -23,34 +31,21 @@ dbutils.fs.ls("./databricks-datasets/flights")
 
 # COMMAND ----------
 
-# DBTITLE 1,SparkSession
 # MAGIC %md
-# MAGIC 1. Creating Spark DataFrame using list
-# MAGIC 2. Creating Spark DataFrame using set
-# MAGIC 3. Creating Spark DataFrame using Pandas DataFrame
-# MAGIC 4. Create a DataFrame for a range of numbers
-# MAGIC 6. Register User Defined Functions (UDFs).
+# MAGIC `SparkSession` is the driver program (encapsulates SparkContext) that interacts with the underlying cluster.
 
 # COMMAND ----------
 
-# MAGIC %md
-# MAGIC SparkSession is the driver program (encapsulates SparkContext) that interacts with the underlying cluster.
-
-# COMMAND ----------
-
-#spark session is available through
+# SparkSession is available through a variable
 spark
 
 # COMMAND ----------
 
 # MAGIC %md 
-# MAGIC ###### Creating Spark DataFrame using list
+# MAGIC ## Create a Spark DataFrame using a list
 
 # COMMAND ----------
 
-"""
-using a list to create a spark DataFrame
-"""
 int_list = [[i] for i in range(100)]
 df = spark.createDataFrame(int_list, ['Numbers'])
 display(df)
@@ -58,13 +53,10 @@ display(df)
 # COMMAND ----------
 
 # MAGIC %md 
-# MAGIC ###### Creating Spark DataFrame using set
+# MAGIC ## Create a Spark DataFrame using a set
 
 # COMMAND ----------
 
-"""
-Create a dataFrame using a set
-"""
 a_set = (('Manu','100'),('Aditya','90'))
 df = spark.createDataFrame(a_set, ['Name', 'EnergyMeter'])
 display(df)
@@ -72,13 +64,10 @@ display(df)
 # COMMAND ----------
 
 # MAGIC %md 
-# MAGIC ###### Creating Spark DataFrame using Pandas DataFrame
+# MAGIC ## Create a Spark DataFrame using a Pandas DataFrame
 
 # COMMAND ----------
 
-"""
-Create a dataFrame using pandas dataFrame
-"""
 pandas_dataframe = pd.DataFrame({'first':range(200), 'second':range(300,500)})
 df = spark.createDataFrame(pandas_dataframe)
 display(df)
@@ -86,8 +75,8 @@ display(df)
 # COMMAND ----------
 
 # MAGIC %md 
-# MAGIC ###### Creating Spark DataFrame from a range of numbers
-# MAGIC We'll be looking at [range](https://spark.apache.org/docs/latest/api/python//reference/pyspark.sql/api/pyspark.sql.SparkSession.range.html) method to create a Spark DataFrame.
+# MAGIC ## Create a Spark DataFrame from a range of numbers
+# MAGIC We'll be using the [range](https://spark.apache.org/docs/latest/api/python//reference/pyspark.sql/api/pyspark.sql.SparkSession.range.html) method to create a Spark DataFrame.
 
 # COMMAND ----------
 
@@ -96,8 +85,8 @@ spark.range(100).collect()
 # COMMAND ----------
 
 # MAGIC %md 
-# MAGIC ###### DataFrameReaders
-# MAGIC DataFrameReader class in pyspark lets one read data into a spark DataFrame
+# MAGIC ## DataFrameReaders
+# MAGIC The DataFrameReader class in Pyspark allows you to read data into a Spark DataFrame
 
 # COMMAND ----------
 
@@ -115,7 +104,7 @@ spark.read
 # COMMAND ----------
 
 """
-reading a datafile using dataframe reader, more on this later
+Reading a Datafile using DataFrame reader
 """
 file_path = '/databricks-datasets/bikeSharing/data-001/day.csv'
 df = spark.read\
@@ -126,8 +115,8 @@ display(df)
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ###### Register User Defined Functions (UDFs)
-# MAGIC A **User defined function** or UDF is a function defined by the user to do a ***custom tranformation** on the dataset leveraging the spark framework. To apply the method on the dataset taking advantage of the spark framework one must 'register' the UDF. More on this later.
+# MAGIC ## Register a User Defined Function (UDF)
+# MAGIC A **User defined function** or UDF is a function defined by the user to do a ***custom tranformation** on the dataset leveraging the spark framework. To apply the method on the dataset taking advantage of the spark framework one must 'register' the UDF.
 
 # COMMAND ----------
 
@@ -140,11 +129,14 @@ display(df)
 
 # COMMAND ----------
 
-#Spark has its own datatypes
+# Spark has its own datatypes
+
 from pyspark.sql.types import IntegerType
+
 # define a function that adds 1 to a record
 def addOne(rec):
-  return rec + 1
+    return rec + 1
+
 # register function
 udf_fun = spark.udf.register('add1', addOne, IntegerType())
 udf_fun

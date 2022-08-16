@@ -1,7 +1,12 @@
 # Databricks notebook source
-# DBTITLE 1,Apache Spark
 # MAGIC %md
-# MAGIC 
+# MAGIC # Spark Architecture Components
+
+# COMMAND ----------
+
+# DBTITLE 0,Apache Spark
+# MAGIC %md
+# MAGIC ## Apache Spark
 # MAGIC **TL;DR Spark lets you run SQL/Python pandas like queries/transformations over very huge dataset leveraging distributed computing. Now also supports distributed machine learning**
 # MAGIC 
 # MAGIC Apache Spark is a <b>unified computing engine</b> and set of <b>libraries</b> for <b>parallel data processing</b> on **computer clusters**. This definition has 3 components that have been broken down below:
@@ -22,8 +27,9 @@
 
 # COMMAND ----------
 
-# DBTITLE 1,Driver, Executor and Cluster Manager
+# DBTITLE 0,Driver, Executor and Cluster Manager
 # MAGIC %md
+# MAGIC ## Driver, Executor, and Cluster Manager
 # MAGIC ![Spark Architecture](https://spark.apache.org/docs/latest/img/cluster-overview.png)
 # MAGIC <br>
 # MAGIC [1] Spark Architecture
@@ -52,6 +58,7 @@ print(sc.getConf().get('spark.driver.maxResultSize'))
 
 # COMMAND ----------
 
-# DBTITLE 1,Resource
+# DBTITLE 0,Resources
 # MAGIC %md
-# MAGIC \[1\] https://spark.apache.org/docs/latest/cluster-overview.html
+# MAGIC ## Resources
+# MAGIC * https://spark.apache.org/docs/latest/cluster-overview.html

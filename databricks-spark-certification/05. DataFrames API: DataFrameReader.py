@@ -1,6 +1,39 @@
 # Databricks notebook source
 # MAGIC %md
-# MAGIC 💡 _Run the following command to initalise data setup and library imports_
+# MAGIC # DataFrameReader
+# MAGIC 
+# MAGIC In order to work with our data in Spark, we must read data into Spark. One such method is using the **DataFrameReader**.
+# MAGIC 
+# MAGIC Spark has 6 core data sources for which out of the box reading capability is provided:
+# MAGIC 1. **CSV**: Comma seperated values
+# MAGIC 2. **JSON**: JavaScipt Object Notation
+# MAGIC 3. **Parquet**: An open source column oriented data storage format
+# MAGIC 4. **Plain/text file**
+# MAGIC 5. **ORC**: An open source column oriented data storage format
+# MAGIC 6. **JDBC**: Database connector
+# MAGIC 
+# MAGIC The **DataFrameReader** API can read these core data sources through the SparkSession using the following API:
+# MAGIC ```
+# MAGIC spark.read.format(...)
+# MAGIC   .option('mode','...')
+# MAGIC   .option('inferSchema', '...')
+# MAGIC   .option('path', '...')
+# MAGIC   .schema(...)
+# MAGIC   .load()
+# MAGIC ```
+# MAGIC 
+# MAGIC In this notebook, we'll will demonstrate the following:
+# MAGIC 1. Read a CSV file
+# MAGIC 2. Read a parquet file
+# MAGIC 3. Read a non-standard format using format() and load()
+# MAGIC 4. Configure options for specific formats
+# MAGIC 5. Specify a DDL-formatted schema
+# MAGIC 6. Construct and specify a schema using StructType classes
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Set up the notebook
 
 # COMMAND ----------
 
@@ -13,39 +46,10 @@
 # COMMAND ----------
 
 # MAGIC %md 
-# MAGIC The DataFrame reader API can be accessed through the SparkSession using the following API
-# MAGIC 
-# MAGIC ```
-# MAGIC spark.read.format(...)
-# MAGIC   .option('mode','...')
-# MAGIC   .option('inferSchema', '...')
-# MAGIC   .option('path', '...')
-# MAGIC   .schema(...)
-# MAGIC   .load()
-# MAGIC ```
+# MAGIC ## Reading a CSV file
 
 # COMMAND ----------
 
-# DBTITLE 1,Read data for the “core” data formats (CSV, JSON, JDBC, ORC, Parquet, text and tables)
-# MAGIC %md
-# MAGIC Spark has 6 core data sources for which out of the box reading capability is provided:
-# MAGIC 1. CSV: Comma seperated values
-# MAGIC 2. JSON: JavaScipt Object Notation
-# MAGIC 3. Parquet: An open source column oriented data storage format
-# MAGIC 4. Plain/text file
-# MAGIC 5. ORC: An open source column oriented data storage format
-# MAGIC 6. JDBC: Database connector
-# MAGIC 
-# MAGIC We will explore reading the data for some of these
-
-# COMMAND ----------
-
-# MAGIC %md 
-# MAGIC ###### Reading CSV
-
-# COMMAND ----------
-
-# Reading 
 csv_data_path = '/databricks-datasets/bikeSharing/data-001/day.csv'
 atlas_csv = '/databricks-datasets/atlas_higgs/atlas_higgs.csv'
 tsv_powerplant = '/databricks-datasets/power-plant/data/Sheet1.tsv'
@@ -55,7 +59,6 @@ parquet_data_path = '/databricks-datasets/airlines/'
 
 # COMMAND ----------
 
-# reading csv 
 csv_df = spark.read\
   .csv('/databricks-datasets/bikeSharing/data-001/day.csv')
 display(csv_df)
@@ -67,12 +70,12 @@ csv_df.printSchema()
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC 💡  _The CSV file read above does not take into account first row as header and DataTypes of all the column are Strings_
+# MAGIC 💡  _The CSV file read above does not take into account first row as header and DataTypes of all the column are Strings. We'll demonstrate how to solve that later in this notebook._
 
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ###### Reading the parquet file
+# MAGIC ## Reading a parquet file
 
 # COMMAND ----------
 
@@ -80,7 +83,6 @@ csv_df.printSchema()
 
 # COMMAND ----------
 
-#reading parquet 
 parquet_df = spark.read\
   .parquet('/databricks-datasets/amazon/test4K')
 parquet_df.printSchema()
@@ -91,12 +93,13 @@ display(parquet_df)
 
 # COMMAND ----------
 
-# DBTITLE 1,How to read data from non-core formats using format() and load()
-'''
-Let's read a tab seperated values or tsv file using the format()
-and load() methods. 
-'''
+# MAGIC %md
+# MAGIC ## Reading non-standard formats using format() and load()
+# MAGIC ... for example a tab separated value (tsv) file
 
+# COMMAND ----------
+
+# DBTITLE 0,How to read data from non-core formats using format() and load()
 file_path = '/databricks-datasets/power-plant/data/Sheet1.tsv'
 df = spark.read\
   .format('csv')\
@@ -111,31 +114,30 @@ display(df)
 
 # COMMAND ----------
 
-# DBTITLE 1,How to configure options for specific formats
+# MAGIC %md
+# MAGIC ## Configure options for specific formats
+# MAGIC Sometimes you'll need to specify some additional parameters in order to properly read in a file
+
+# COMMAND ----------
+
+# DBTITLE 0,How to configure options for specific formats
 # MAGIC %fs
 # MAGIC head /databricks-datasets/bikeSharing/data-001/day.csv
 
 # COMMAND ----------
 
-'''
-Reading the a CSV file
-'''
 file_path = '/databricks-datasets/bikeSharing/data-001/day.csv'
 
 df = spark.read.csv(file_path)
 
 # COMMAND ----------
 
-'''
-printSchema method displays the Schema of the dataFrame. You get to see the 
-column names and Datatypes among other information
-'''
 df.printSchema()
 
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC Note that the headers for the file were not read from the first row and the dataTypes are all strings
+# MAGIC Note that the headers for the file were **not** read from the first row and the dataTypes are all strings
 
 # COMMAND ----------
 
@@ -143,10 +145,11 @@ display(df)
 
 # COMMAND ----------
 
-'''
-Reading the file again but this time giving an "Option" to read  the 'header', and
-intelligently infer the schema ('inferSchema') i.e. determine the DataType automatically
-'''
+# MAGIC %md
+# MAGIC Let's read the file again but this time giving an "Option" to read  the 'header', and intelligently infer the schema ('inferSchema') i.e. determine the DataType automatically
+
+# COMMAND ----------
+
 file_path = '/databricks-datasets/bikeSharing/data-001/day.csv'
 
 df = spark.read\
@@ -164,8 +167,9 @@ display(df)
 
 # COMMAND ----------
 
-# DBTITLE 1,How to specify a DDL-formatted schema
+# DBTITLE 0,How to specify a DDL-formatted schema
 # MAGIC %md
+# MAGIC ## Specify a DDL-formatted schema
 # MAGIC Spark also has a provision for the user to provide DDL like syntax for declaration of schema
 
 # COMMAND ----------
@@ -176,12 +180,12 @@ data = spark.read.format("csv").load(file_path).toPandas()
 # COMMAND ----------
 
 '''
-Providing explicit schema declaration
+Provide explicit schema declaration
 '''
 spark.conf.set("spark.sql.legacy.charVarcharAsString","true")
 
 file_path = '/databricks-datasets/iot/iot_devices.json'
-#create the custom SQL like schema declaration
+# create the custom SQL like schema declaration
 CustomSchema = 'device_id INT, ip VARCHAR(20), cca3 varchar(3), latitude decimal, longitude double'
 
 df = spark.read\
@@ -195,21 +199,18 @@ display(df)
 
 # COMMAND ----------
 
-# DBTITLE 1,How to construct and specify a schema using the StructType classes
+# DBTITLE 0,How to construct and specify a schema using the StructType classes
 # MAGIC %md
+# MAGIC ## Construct and specify a schema using StructType classes
 # MAGIC Spark provides great flexibility in reading unstructured data using the inbuilt **StructType class** and custom schema declaration. A StructType can have multiple **StructField type** objects with differing datatypes.
 
 # COMMAND ----------
 
-#make sure the first command has been run
-
-#reading JSON file
 file_path = f'/FileStore/{current_user}/wrangling-with-spark/student.json'
 
 df = spark.read\
   .json(file_path)
 
-#Examining Schema
 df.printSchema()
 
 # COMMAND ----------
@@ -223,10 +224,10 @@ display(df)
 
 # COMMAND ----------
 
-#import different Spark DataTypes 
+# import different Spark DataTypes 
 from pyspark.sql.types import StructType, StructField, DoubleType, StringType, LongType, ArrayType
 
-#Define the schema of resultant dataFrame
+# define the schema of resulting dataFrame
 df_schema = StructType([
   StructField('id', DoubleType(), True),
   StructField('name', StringType(), True),
@@ -246,8 +247,10 @@ display(df)
 
 # COMMAND ----------
 
-# DBTITLE 1,Exercise
+# DBTITLE 0,Exercise
 # MAGIC %md
+# MAGIC ## Exercise
+# MAGIC 
 # MAGIC **Scenario 5.1**
 # MAGIC <br>
 # MAGIC **Dataset**: dbfs:/FileStore/YOUR_USERNAME/wrangling-with-spark/df_some_sep (**Hint:** interpolate the variable `current_user` in place of `YOUR_USERNAME`)
@@ -364,6 +367,3 @@ display(df)
 # MAGIC 3. [StructField](https://spark.apache.org/docs/latest/api/python//reference/pyspark.sql/api/pyspark.sql.types.StructField)
 # MAGIC 4. [Parquet file format](https://en.wikipedia.org/wiki/Apache_Parquet)
 # MAGIC 5. [Handling Malformed CSVs](https://medium.com/@smdbilal.vt5815/csv-bad-record-handling-and-its-complications-pyspark-f3b871d652ba)
-
-# COMMAND ----------
-
