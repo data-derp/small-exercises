@@ -1,4 +1,4 @@
-# Databricks Spark Certification
+# Wrangling in Spark
 
 ## Quickstart
 1. Set up a [Databricks Account](https://github.com/data-derp/documentation/blob/master/databricks/README.md) if you don't already have one
