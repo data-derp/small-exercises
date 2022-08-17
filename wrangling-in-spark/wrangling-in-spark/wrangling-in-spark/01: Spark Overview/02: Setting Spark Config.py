@@ -13,17 +13,20 @@
 
 # COMMAND ----------
 
-# MAGIC %run ./init
+# MAGIC %run ../init
 
 # COMMAND ----------
 
-# Use the following command  to list all the properties 
+# MAGIC %md
+# MAGIC Get all the properties by calling `.getConf().getAll()` on the Spark Context
+
+# COMMAND ----------
+
 spark.sparkContext.getConf().getAll()
 
 # COMMAND ----------
 
 # DBTITLE 1,Getting and Setting properties
-# Read data
 df = spark.read\
   .parquet('/databricks-datasets/amazon/data20K')
 
@@ -60,7 +63,7 @@ df.groupBy(df.rating).count().write.mode('overwrite').parquet(f'{working_directo
 # COMMAND ----------
 
 """
-Let us change the number of partitions that are used during that shuffle
+Let's change the number of partitions that are used during that shuffle
 using the 'spark.sql.shuffle.partitions' property.
 """
 spark.conf.set('spark.sql.shuffle.partitions','100')

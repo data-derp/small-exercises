@@ -37,11 +37,11 @@
 
 # COMMAND ----------
 
-# MAGIC %run ./init
+# MAGIC %run ../init
 
 # COMMAND ----------
 
-# MAGIC %run ./init_data
+# MAGIC %run ../init_data
 
 # COMMAND ----------
 
@@ -179,13 +179,10 @@ data = spark.read.format("csv").load(file_path).toPandas()
 
 # COMMAND ----------
 
-'''
-Provide explicit schema declaration
-'''
 spark.conf.set("spark.sql.legacy.charVarcharAsString","true")
 
 file_path = '/databricks-datasets/iot/iot_devices.json'
-# create the custom SQL like schema declaration
+
 CustomSchema = 'device_id INT, ip VARCHAR(20), cca3 varchar(3), latitude decimal, longitude double'
 
 df = spark.read\
@@ -224,10 +221,8 @@ display(df)
 
 # COMMAND ----------
 
-# import different Spark DataTypes 
 from pyspark.sql.types import StructType, StructField, DoubleType, StringType, LongType, ArrayType
 
-# define the schema of resulting dataFrame
 df_schema = StructType([
   StructField('id', DoubleType(), True),
   StructField('name', StringType(), True),
@@ -249,10 +244,8 @@ display(df)
 
 # DBTITLE 0,Exercise
 # MAGIC %md
-# MAGIC ## Exercise
+# MAGIC ## Exercise 1
 # MAGIC 
-# MAGIC **Scenario 5.1**
-# MAGIC <br>
 # MAGIC **Dataset**: dbfs:/FileStore/YOUR_USERNAME/wrangling-with-spark/df_some_sep (**Hint:** interpolate the variable `current_user` in place of `YOUR_USERNAME`)
 # MAGIC <br>
 # MAGIC **Problem statement**: Read the dataset into a DataFrame using a custom seperator
@@ -293,8 +286,9 @@ display(df)
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC **Scenario 5.2**
-# MAGIC <br>
+# MAGIC ## Exercise 2
+# MAGIC 
+# MAGIC 
 # MAGIC **Dataset**: dbfs:/FileStore/YOUR_USERNAME/wrangling-with-spark/student.json (**Hint:** interpolate the variable `current_user` in place of `YOUR_USERNAME`)
 # MAGIC <br>
 # MAGIC **Problem statement**: Read the JSON file into the following schema

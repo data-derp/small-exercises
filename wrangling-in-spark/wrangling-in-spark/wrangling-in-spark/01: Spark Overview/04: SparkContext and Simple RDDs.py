@@ -24,11 +24,11 @@
 
 # COMMAND ----------
 
-# MAGIC %run ./init
+# MAGIC %run ../init
 
 # COMMAND ----------
 
-# MAGIC %run ./init_data
+# MAGIC %run ../init_data
 
 # COMMAND ----------
 
@@ -126,7 +126,7 @@ get_month.reduceByKey(lambda a,b:max(a,b)).collect()
 # MAGIC 
 # MAGIC ## Exercise
 # MAGIC 
-# MAGIC **Scenario 3a.1**: Using [parallelize](https://spark.apache.org/docs/latest/api/python/reference/api/pyspark.SparkContext.parallelize.html) function change the number of partitions the RDD is initialised with. Obeserve the output by expanding 'Spark Jobs->Job ->Stage' 
+# MAGIC Using [parallelize](https://spark.apache.org/docs/latest/api/python/reference/api/pyspark.SparkContext.parallelize.html) function change the number of partitions the RDD is initialised with. Obeserve the output by expanding 'Spark Jobs->Job ->Stage' 
 
 # COMMAND ----------
 
