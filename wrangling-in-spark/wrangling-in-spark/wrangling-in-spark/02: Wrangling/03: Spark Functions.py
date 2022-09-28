@@ -225,7 +225,7 @@ iot_devices.printSchema()
 
 # COMMAND ----------
 
-unique_example_df.select('lcd').distinct().show()
+iot_devices.select('lcd').distinct().show()
 
 # COMMAND ----------
 
