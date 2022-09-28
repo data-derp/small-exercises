@@ -8,7 +8,7 @@
 
    ![databricks-import](https://github.com/data-derp/documentation/blob/master/databricks/assets/databricks-import.png?raw=true)
 
-4. Import the `wrangling-in-spark.dbc` notebook archive using the URL method: `https://github.com/data-derp/small-exercises/blob/master/wrangling-in-spark/wrangling-in-spark.dbc`
+4. Import the `wrangling-in-spark.dbc` notebook archive using the URL method: `https://github.com/data-derp/small-exercises/blob/master/wrangling-in-spark/wrangling-in-spark.dbc?raw=true`
 
    ![databricks-import-url](https://github.com/data-derp/documentation/blob/master/databricks/assets/databricks-import-url.png?raw=true)
 
