@@ -148,6 +148,13 @@ distData.collect()
 
 # COMMAND ----------
 
+# Investigate with RDD glom() and compare the output
+data = list(range(1,100))
+distData = sc.parallelize(data, 5)
+distData.glom().collect()
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC ## References
 # MAGIC 

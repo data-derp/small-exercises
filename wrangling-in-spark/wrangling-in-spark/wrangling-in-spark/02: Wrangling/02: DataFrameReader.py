@@ -288,19 +288,20 @@ display(df)
 # MAGIC %md
 # MAGIC ## Exercise 2
 # MAGIC 
-# MAGIC 
 # MAGIC **Dataset**: dbfs:/FileStore/YOUR_USERNAME/wrangling-with-spark/student.json (**Hint:** interpolate the variable `current_user` in place of `YOUR_USERNAME`)
 # MAGIC <br>
 # MAGIC **Problem statement**: Read the JSON file into the following schema
-# MAGIC ###### root
-# MAGIC ######  |-- id: double (nullable = true)
-# MAGIC ######  |-- name: string (nullable = true)
-# MAGIC ######  |-- subjects: array (nullable = true)
-# MAGIC ######  |&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;|-- element: string (containsNull = true)
-# MAGIC ######  |-- total_marks: float (nullable = true)
-# MAGIC ######  |-- address: struct (nullable = true)
-# MAGIC ######  |&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;|-- city: string (nullable = true)
-# MAGIC <br>
+# MAGIC 
+# MAGIC <pre>
+# MAGIC  root
+# MAGIC  |-- id: double (nullable = true)
+# MAGIC  |-- name: string (nullable = true)
+# MAGIC  |-- subjects: array (nullable = true)
+# MAGIC  |    |-- element: string (containsNull = true)
+# MAGIC  |-- total_marks: float (nullable = true)
+# MAGIC  |-- address: struct (nullable = true)
+# MAGIC </pre>
+# MAGIC 
 # MAGIC **Steps to follow**:
 # MAGIC 1. Peek in to the dataset using the "head" command
 # MAGIC 2. Define the schema using StructType and StructField classes. Hint: StructFeild's can be nester

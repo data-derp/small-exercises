@@ -78,6 +78,9 @@ pandas_dataframe = pd.DataFrame({'first':range(200), 'second':range(300,500)})
 df = spark.createDataFrame(pandas_dataframe)
 display(df)
 
+print(type(pandas_dataframe))
+print(type(df))
+
 # COMMAND ----------
 
 # MAGIC %md 
