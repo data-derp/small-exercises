@@ -90,31 +90,51 @@ data.write.mode('Overwrite').csv(f'{working_directory}/atlas_csv')
 # MAGIC %md
 # MAGIC ## Writing with options
 # MAGIC 
-# MAGIC There are many options that can be configured while writing to specific formats. 
+# MAGIC There are many options that can be configured while writing data to specific formats. Here are some examples.
 # MAGIC 
-# MAGIC | Option | Description | Supported Format |
-# MAGIC | --- | --- | --- |
-# MAGIC | header | boolean to indicate if a header exists | csv |
-# MAGIC | sep | input character as separator | csv | 
-# MAGIC | nullValue | what written character represents a null value in the dataset | csv |
-# MAGIC | nanValue | what written character represents a nan value in the dataset | csv |
-# MAGIC | codec | what compression codec Spark should use to write a file | csv, json, parquet |
-# MAGIC | timestampFormat | how to format a timestamp | json | 
-# MAGIC | dateformat | how to format a date | json |
+# MAGIC | Option | Description | Supported Data Format | Scope |
+# MAGIC | --- | --- | --- | --- |
+# MAGIC | header | boolean to indicate if a header exists | csv | read/write |
+# MAGIC | sep | input character as separator for each field and value | csv | read/write |
+# MAGIC | lineSep | input character as line separator | csv, json | read/write |
+# MAGIC | nullValue | what written character represents a null value in the dataset | csv | read/write |
+# MAGIC | nanValue | what written character represents a nan value in the dataset | csv | read |
+# MAGIC | compression | what compression codec Spark should use to write a file <br> (none, bzip2, gzip, lz4, snappy and deflate) | csv, json, text | write |
+# MAGIC | compression | what compression codec Spark should use to write a file <br> (none, uncompressed, snappy, gzip, lzo, brotli, lz4, and zstd) | parquet | write |
+# MAGIC | timestampFormat | how to format a timestamp | csv, json | read/write |
+# MAGIC | dateformat | how to format a date | csv, json | read/write |
+# MAGIC 
+# MAGIC For more options, refer to following.
+# MAGIC * [CSV data source options](https://spark.apache.org/docs/latest/sql-data-sources-csv.html#data-source-option)
+# MAGIC * [JSON data source options](https://spark.apache.org/docs/latest/sql-data-sources-json.html#data-source-option)
+# MAGIC * [Parquet data source options](https://spark.apache.org/docs/latest/sql-data-sources-parquet.html#data-source-option)
 
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ### Save to bzip format
+# MAGIC ### Save to CSV format with bzip2 compression
 
 # COMMAND ----------
 
 dbutils.fs.rm(f'{working_directory}/compression/bzip2', True)
+
+# This creates snappy.parquet as 'codec' is not an supported option
 data.write.format('parquet')\
   .option('codec', 'bzip2')\
-  .save(f'{working_directory}/compression/bzip2')
+  .save(f'{working_directory}/compression/bzip2/codec-parquet')
+display(spark.createDataFrame(dbutils.fs.ls(f'{working_directory}/compression/bzip2/codec-parquet')))
 
-display(spark.createDataFrame(dbutils.fs.ls(f'{working_directory}/compression/bzip2')))
+# This hit IllegalArgumentException as codec 'bzip2' is not available for parquet
+# data.write.format('parquet')\
+#   .option('compression', 'bzip2')\
+#   .save(f'{working_directory}/compression/bzip2/compression-parquet')
+# display(spark.createDataFrame(dbutils.fs.ls(f'{working_directory}/compression/bzip2/compression-parquet')))
+
+# This should works
+data.write.format('csv')\
+  .option('compression', 'bzip2')\
+  .save(f'{working_directory}/compression/bzip2/compression-csv')
+display(spark.createDataFrame(dbutils.fs.ls(f'{working_directory}/compression/bzip2/compression-csv')))
 
 # COMMAND ----------
 
@@ -125,7 +145,7 @@ display(spark.createDataFrame(dbutils.fs.ls(f'{working_directory}/compression/bz
 
 dbutils.fs.rm(f'{working_directory}/compression/gzip', True)
 data.write.format('parquet')\
-  .option('codec', 'gzip')\
+  .option('compression', 'gzip')\
   .save(f'{working_directory}/compression/gzip')
 
 display(spark.createDataFrame(dbutils.fs.ls(f'{working_directory}/compression/gzip')))
