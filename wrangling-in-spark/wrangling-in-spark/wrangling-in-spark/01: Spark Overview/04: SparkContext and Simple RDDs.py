@@ -68,7 +68,7 @@ print(type(distData))
 # COMMAND ----------
 
 # MAGIC %md 
-# MAGIC ![Jobs view](https://github.com/data-derp/small-exercises/blob/master/databricks-spark-certification/assets/rdd-partitions.png?raw=true)
+# MAGIC ![Jobs view](https://github.com/data-derp/small-exercises/blob/master/wrangling-in-spark/assets/rdd-partitions.png?raw=true)
 # MAGIC <br>[1] Jobs view
 
 # COMMAND ----------
