@@ -41,13 +41,6 @@ dbutils.fs.ls(".") # use the FS module of dbutils to access DBFS
 # MAGIC - SparkSession (often named as the variable `spark`)
 # MAGIC 
 # MAGIC All Databricks runtimes automatically names the SparkSession this way already.
-# MAGIC However, if you're running in your own kernel/runtime (e.g. on VS Code), you'll need to do the following:
-
-# COMMAND ----------
-
-from pyspark.sql import SparkSession # DEMO PURPOSES ONLY: DO NOT RUN IF USING DATABRICKS
-
-spark = SparkSession.builder.getOrCreate() # DEMO PURPOSES ONLY: DO NOT RUN IF USING DATABRICKS
 
 # COMMAND ----------
 
