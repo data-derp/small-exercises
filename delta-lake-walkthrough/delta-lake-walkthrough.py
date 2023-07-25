@@ -47,6 +47,7 @@ spark.sql(f"USE {db}")
 spark.sql("SET spark.databricks.delta.formatCheck.enabled = false")
 spark.sql("SET spark.databricks.delta.properties.defaults.autoOptimize.optimizeWrite = true")
 
+
 # COMMAND ----------
 
 import random
@@ -196,6 +197,10 @@ delta_df.write.format("parquet").mode("overwrite").save(f"{working_directory}/lo
 
 # COMMAND ----------
 
+display(df)
+
+# COMMAND ----------
+
 # MAGIC %md **SQL Option 1:** Use `CREATE TABLE` statement with SQL (no upfront schema definition needed)
 
 # COMMAND ----------
@@ -204,15 +209,10 @@ print(f"Your parquet file is located here: {working_directory}/loans_parquet/")
 
 # COMMAND ----------
 
-# MAGIC %md
-# MAGIC Use the above output to create a table from the parquet location.
-
-# COMMAND ----------
-
 # MAGIC %sql
 # MAGIC CREATE TABLE loans_delta2
 # MAGIC USING delta
-# MAGIC AS SELECT * FROM parquet.`/FileStore/YOURUSERNAME/deltaDemo/loans_parquet/`
+# MAGIC AS SELECT * FROM parquet.`/FileStore/syedalimasroor.r/deltaDemo/loans_parquet/`
 
 # COMMAND ----------
 
@@ -224,12 +224,7 @@ print(f"Your parquet file is located here: {working_directory}/loans_parquet/")
 
 # COMMAND ----------
 
-# MAGIC %md
-# MAGIC Use the above output to create a table from the parquet location.
-
-# COMMAND ----------
-
-# MAGIC %sql CONVERT TO DELTA parquet.`/FileStore/YOURUSERNAME/deltaDemo/loans_parquet/`
+# MAGIC %sql CONVERT TO DELTA parquet.`/FileStore/syedalimasroor.r/deltaDemo/loans_parquet/`
 
 # COMMAND ----------
 
@@ -248,8 +243,6 @@ spark.sql("select * from loans_delta").show(3)
 # COMMAND ----------
 
 # MAGIC %md ### Write 2 different data streams into our Delta Lake table at the same time.
-# MAGIC 
-# MAGIC ⚠️ BE SURE YOU STOP THE STREAMS BELOW TO AVOID INCURRUING CHARGES ⚠️
 
 # COMMAND ----------
 
@@ -259,7 +252,7 @@ stream_query_B = generate_and_append_data_stream(table_format="delta", table_nam
 
 # COMMAND ----------
 
-# MAGIC %md ### Create 2 continuous streaming readers of our Delta Lake table to illustrate streaming progress
+# MAGIC %md ### Create 2 continuous streaming readers of our Delta Lake table to illustrate streaming progress.
 
 # COMMAND ----------
 
@@ -273,7 +266,7 @@ display(spark.readStream.format("delta").table("loans_delta").groupBy("workload_
 
 # COMMAND ----------
 
-# MAGIC %md ### You can even run a batch query on the table in the meantime
+# MAGIC %md ### Add a batch query, just for good measure
 
 # COMMAND ----------
 
@@ -284,7 +277,7 @@ display(spark.readStream.format("delta").table("loans_delta").groupBy("workload_
 
 # COMMAND ----------
 
-dbutils.notebook.exit("stop") # breakpoint for Run All
+dbutils.notebook.exit("stop")
 
 # COMMAND ----------
 
@@ -416,9 +409,9 @@ spark.sql("SELECT COUNT(*) FROM loans_delta VERSION AS OF 0").show()
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ##![Delta Lake Logo Tiny](https://pages.databricks.com/rs/094-YMS-629/images/delta-lake-tiny-logo.png) Full DML Support: `DELETE`, `UPDATE`, `MERGE INTO` (UPSERT)
+# MAGIC ##![Delta Lake Logo Tiny](https://pages.databricks.com/rs/094-YMS-629/images/delta-lake-tiny-logo.png) Full DML Support: `DELETE`, `UPDATE`, `MERGE INTO`
 # MAGIC 
-# MAGIC Delta Lake brings ACID transactions and full DML (Data Manipulation Language) support to data lakes.
+# MAGIC Delta Lake brings ACID transactions and full DML support to data lakes.
 # MAGIC 
 # MAGIC >Parquet does **not** support these commands - they are unique to Delta Lake.
 
@@ -473,7 +466,7 @@ spark.sql("SELECT COUNT(*) FROM loans_delta VERSION AS OF 0").show()
 
 # COMMAND ----------
 
-# MAGIC %sql UPDATE loans_delta SET funded_amnt = 22000 WHERE loan_id = 4420
+# MAGIC %sql UPDATE loans_delta SET funded_amnt = 33000 WHERE loan_id = 4420
 
 # COMMAND ----------
 
@@ -481,12 +474,12 @@ spark.sql("SELECT COUNT(*) FROM loans_delta VERSION AS OF 0").show()
 
 # COMMAND ----------
 
-# MAGIC %md ###![Delta Lake Logo Tiny](https://pages.databricks.com/rs/094-YMS-629/images/delta-lake-tiny-logo.png) Support Change Data Capture Workflows & Other Ingest Use Cases via `MERGE INTO` (UPSERT)
+# MAGIC %md ###![Delta Lake Logo Tiny](https://pages.databricks.com/rs/094-YMS-629/images/delta-lake-tiny-logo.png) Support Change Data Capture Workflows & Other Ingest Use Cases via `MERGE INTO`
 
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC With a **legacy** data pipeline, to insert or update a table, **you must**:
+# MAGIC With a legacy data pipeline, to insert or update a table, you must:
 # MAGIC 1. Identify the new rows to be inserted
 # MAGIC 2. Identify the rows that will be replaced (i.e. updated)
 # MAGIC 3. Identify all of the rows that are not impacted by the insert or update
@@ -502,7 +495,7 @@ spark.sql("SELECT COUNT(*) FROM loans_delta VERSION AS OF 0").show()
 # MAGIC 
 # MAGIC 2-step process: 
 # MAGIC 1. Identify rows to insert or update
-# MAGIC 2. Use `MERGE` in order to **upsert** new data
+# MAGIC 2. Use `MERGE`
 
 # COMMAND ----------
 
@@ -510,7 +503,6 @@ spark.sql("SELECT COUNT(*) FROM loans_delta VERSION AS OF 0").show()
 data = [(4420, 22000, 21500.00, "NY", "update", datetime.now()),  # record to update
         (99999, 10000, 1338.55, "CA", "insert", datetime.now())]  # record to insert
 schema = spark.table("loans_delta").schema
-
 spark.createDataFrame(data, schema).createOrReplaceTempView("merge_table")
 spark.sql("SELECT * FROM merge_table").show()
 
@@ -562,10 +554,6 @@ spark.sql("SELECT * FROM merge_table").show()
 # COMMAND ----------
 
 cleanup_paths_and_tables()
-
-# COMMAND ----------
-
-spark.sql(f"DROP SCHEMA IF EXISTS {db}")
 
 # COMMAND ----------
 
