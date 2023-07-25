@@ -8,7 +8,6 @@
 # MAGIC ### Unifying Batch and Streaming Processing
 # MAGIC 
 # MAGIC ### Bringing ACID to Spark
-# MAGIC ### Bringing ACID to Spark Again
 
 # COMMAND ----------
 
@@ -196,12 +195,6 @@ df.write.format("delta").mode("overwrite").saveAsTable("loans_delta") # save Dat
 delta_df = spark.sql("select * from loans_delta") # read from a registered table within your metastore
 delta_df.write.format("parquet").mode("overwrite").save(f"{working_directory}/loans_parquet/") # you can also save your parquets to a specific path (doesn't have to be saved as a registered table)
 
-# COMMAND ----------
-
-display(df)
-
-# COMMAND ----------
-
 # MAGIC %md **SQL Option 1:** Use `CREATE TABLE` statement with SQL (no upfront schema definition needed)
 
 # COMMAND ----------
@@ -225,6 +218,12 @@ print(f"Your parquet file is located here: {working_directory}/loans_parquet/")
 
 # COMMAND ----------
 
+# MAGIC %md Use the above output to create a table from the parquet location.
+
+# COMMAND ----------
+
+# COMMAND ----------
+
 # MAGIC %sql CONVERT TO DELTA parquet.`/FileStore/syedalimasroor.r/deltaDemo/loans_parquet/`
 
 # COMMAND ----------
@@ -244,6 +243,7 @@ spark.sql("select * from loans_delta").show(3)
 # COMMAND ----------
 
 # MAGIC %md ### Write 2 different data streams into our Delta Lake table at the same time.
+# MAGIC  ⚠️ BE SURE YOU STOP THE STREAMS BELOW TO AVOID INCURRUING CHARGES ⚠️
 
 # COMMAND ----------
 
@@ -267,7 +267,7 @@ display(spark.readStream.format("delta").table("loans_delta").groupBy("workload_
 
 # COMMAND ----------
 
-# MAGIC %md ### Add a batch query, just for good measure
+# MAGIC %md ### You can even run a batch query on the table in the meantime
 
 # COMMAND ----------
 
