@@ -146,7 +146,7 @@ plane_data = spark.read\
 
 # COMMAND ----------
 
-plane_data_selected = plane_data.select(*[col for col in data.columns if col not in ['year']], plane_data.year.cast('integer'))
+plane_data_selected = plane_data.select(*[col for col in plane_data.columns if col not in ['year']], plane_data.year.cast('integer'))
 
 # COMMAND ----------
 
