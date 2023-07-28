@@ -195,7 +195,9 @@ df.write.format("delta").mode("overwrite").saveAsTable("loans_delta") # save Dat
 delta_df = spark.sql("select * from loans_delta") # read from a registered table within your metastore
 delta_df.write.format("parquet").mode("overwrite").save(f"{working_directory}/loans_parquet/") # you can also save your parquets to a specific path (doesn't have to be saved as a registered table)
 
-# MAGIC %md **SQL Option 1:** Use `CREATE TABLE` statement with SQL (no upfront schema definition needed)
+# COMMAND ----------
+
+# MAGIC %md **SQL Option 1**: Use `CREATE TABLE` statement with SQL (no upfront schema definition needed)
 
 # COMMAND ----------
 
@@ -206,7 +208,7 @@ print(f"Your parquet file is located here: {working_directory}/loans_parquet/")
 # MAGIC %sql
 # MAGIC CREATE TABLE loans_delta2
 # MAGIC USING delta
-# MAGIC AS SELECT * FROM parquet.`/FileStore/syedalimasroor.r/deltaDemo/loans_parquet/`
+# MAGIC AS SELECT * FROM parquet.`/FileStore/YOURUSERNAME/deltaDemo/loans_parquet/`
 
 # COMMAND ----------
 
@@ -224,7 +226,7 @@ print(f"Your parquet file is located here: {working_directory}/loans_parquet/")
 
 # COMMAND ----------
 
-# MAGIC %sql CONVERT TO DELTA parquet.`/FileStore/syedalimasroor.r/deltaDemo/loans_parquet/`
+# MAGIC %sql CONVERT TO DELTA parquet.`/FileStore/YOURUSERNAME/deltaDemo/loans_parquet/`
 
 # COMMAND ----------
 
