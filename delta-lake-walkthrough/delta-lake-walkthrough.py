@@ -2,9 +2,9 @@
 # MAGIC %md 
 # MAGIC
 # MAGIC # Introduction to Delta Lake
-# MAGIC
-# MAGIC This notebook is a modified version of [this awesome demo](https://databricks.com/de/notebooks/Demo_Hub-Delta_Lake_Notebook.html) from Databricks 
-# MAGIC
+# MAGIC 
+# MAGIC This notebook is a modified version of [this awesome demo](https://www.databricks.com/resources/demos/videos/lakehouse-platform/delta-lake) from Databricks 
+# MAGIC 
 # MAGIC ### Unifying Batch and Streaming Processing
 # MAGIC
 # MAGIC ### Bringing ACID to Spark
