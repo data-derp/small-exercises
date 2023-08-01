@@ -1,12 +1,12 @@
 # Databricks notebook source
 # MAGIC %md 
-# MAGIC 
+# MAGIC
 # MAGIC # Introduction to Delta Lake
-# MAGIC 
+# MAGIC
 # MAGIC This notebook is a modified version of [this awesome demo](https://databricks.com/de/notebooks/Demo_Hub-Delta_Lake_Notebook.html) from Databricks 
-# MAGIC 
+# MAGIC
 # MAGIC ### Unifying Batch and Streaming Processing
-# MAGIC 
+# MAGIC
 # MAGIC ### Bringing ACID to Spark
 
 # COMMAND ----------
@@ -14,7 +14,7 @@
 # MAGIC %md
 # MAGIC <!-- You can run this notebook in a Databricks environment. Specifically, this notebook has been designed to run in [Databricks Community Edition](http://community.cloud.databricks.com/) as well. -->
 # MAGIC To run this notebook, you have to [create a cluster](https://docs.databricks.com/clusters/create.html) with version **Databricks Runtime 7.4 or later** and [attach this notebook](https://docs.databricks.com/notebooks/notebooks-manage.html#attach-a-notebook-to-a-cluster) to that cluster. <br/>
-# MAGIC 
+# MAGIC
 # MAGIC ### Source Data for this notebook
 # MAGIC The data used is a modified version of the public data from [Lending Club](https://www.kaggle.com/wendykan/lending-club-loan-data). It includes all funded loans from 2012 to 2017. Each loan includes applicant information provided by the applicant as well as the current loan status (Current, Late, Fully Paid, etc.) and latest payment information. For a full view of the data please view the data dictionary available [here](https://resources.lendingclub.com/LCDataDictionary.xlsx).
 
@@ -46,7 +46,6 @@ spark.sql(f"USE {db}")
 
 spark.sql("SET spark.databricks.delta.formatCheck.enabled = false")
 spark.sql("SET spark.databricks.delta.properties.defaults.autoOptimize.optimizeWrite = true")
-
 
 # COMMAND ----------
 
@@ -153,9 +152,9 @@ dbutils.fs.cp(f"file:{saved_filename}", f"{working_directory}/{filename}")
 # COMMAND ----------
 
 # MAGIC %md # Getting started with <img src="https://docs.delta.io/latest/_static/delta-lake-logo.png" width=300/>
-# MAGIC 
+# MAGIC
 # MAGIC An open-source storage layer for data lakes that brings ACID transactions to Apache Spark™ and big data workloads.
-# MAGIC 
+# MAGIC
 # MAGIC * **ACID Transactions**: Ensures data integrity and read consistency with complex, concurrent data pipelines.
 # MAGIC * **Unified Batch and Streaming Source and Sink**: A table in Delta Lake is both a batch table, as well as a streaming source and sink. Streaming data ingest, batch historic backfill, and interactive queries all just work out of the box. 
 # MAGIC * **Schema Enforcement and Evolution**: Ensures data cleanliness by blocking writes with unexpected.
@@ -197,11 +196,16 @@ delta_df.write.format("parquet").mode("overwrite").save(f"{working_directory}/lo
 
 # COMMAND ----------
 
-# MAGIC %md **SQL Option 1**: Use `CREATE TABLE` statement with SQL (no upfront schema definition needed)
+# MAGIC %md **SQL Option 1:** Use `CREATE TABLE` statement with SQL (no upfront schema definition needed)
 
 # COMMAND ----------
 
 print(f"Your parquet file is located here: {working_directory}/loans_parquet/")
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC Use the above output to create a table from the parquet location.
 
 # COMMAND ----------
 
@@ -220,9 +224,8 @@ print(f"Your parquet file is located here: {working_directory}/loans_parquet/")
 
 # COMMAND ----------
 
-# MAGIC %md Use the above output to create a table from the parquet location.
-
-# COMMAND ----------
+# MAGIC %md
+# MAGIC Use the above output to create a table from the parquet location.
 
 # COMMAND ----------
 
@@ -245,7 +248,8 @@ spark.sql("select * from loans_delta").show(3)
 # COMMAND ----------
 
 # MAGIC %md ### Write 2 different data streams into our Delta Lake table at the same time.
-# MAGIC  ⚠️ BE SURE YOU STOP THE STREAMS BELOW TO AVOID INCURRUING CHARGES ⚠️
+# MAGIC
+# MAGIC ⚠️ BE SURE YOU STOP THE STREAMS BELOW TO AVOID INCURRUING CHARGES ⚠️
 
 # COMMAND ----------
 
@@ -255,7 +259,7 @@ stream_query_B = generate_and_append_data_stream(table_format="delta", table_nam
 
 # COMMAND ----------
 
-# MAGIC %md ### Create 2 continuous streaming readers of our Delta Lake table to illustrate streaming progress.
+# MAGIC %md ### Create 2 continuous streaming readers of our Delta Lake table to illustrate streaming progress
 
 # COMMAND ----------
 
@@ -280,7 +284,7 @@ display(spark.readStream.format("delta").table("loans_delta").groupBy("workload_
 
 # COMMAND ----------
 
-dbutils.notebook.exit("stop")
+dbutils.notebook.exit("stop") # breakpoint for Run All
 
 # COMMAND ----------
 
@@ -338,7 +342,7 @@ new_data.write.format("delta").mode("append").saveAsTable("loans_delta")
 # COMMAND ----------
 
 # MAGIC %md ##  ![Delta Lake Tiny Logo](https://pages.databricks.com/rs/094-YMS-629/images/delta-lake-tiny-logo.png) Use Schema Evolution to add new columns to schema
-# MAGIC 
+# MAGIC
 # MAGIC If we *want* to update our Delta Lake table to match this data source's schema, we can do so using schema evolution. Simply add the following to the Spark write command: `.option("mergeSchema", "true")`
 
 # COMMAND ----------
@@ -356,21 +360,21 @@ new_data.write.format("delta").mode("append").option("mergeSchema", "true").save
 # COMMAND ----------
 
 # MAGIC %md Delta Lake’s time travel capabilities simplify building data pipelines for use cases including:
-# MAGIC 
+# MAGIC
 # MAGIC * Auditing Data Changes
 # MAGIC * Reproducing experiments & reports
 # MAGIC * Rollbacks
-# MAGIC 
+# MAGIC
 # MAGIC As you write into a Delta table or directory, every operation is automatically versioned.
-# MAGIC 
+# MAGIC
 # MAGIC <img src="https://github.com/risan4841/img/blob/master/transactionallogs.png?raw=true" width=250/>
-# MAGIC 
+# MAGIC
 # MAGIC You can query snapshots of your tables by:
 # MAGIC 1. **Version number**, or
 # MAGIC 2. **Timestamp.**
-# MAGIC 
+# MAGIC
 # MAGIC using Python, Scala, and/or SQL syntax; for these examples we will use the SQL syntax.  
-# MAGIC 
+# MAGIC
 # MAGIC For more information, refer to the [docs](https://docs.delta.io/latest/delta-utility.html#history), or [Introducing Delta Time Travel for Large Scale Data Lakes](https://databricks.com/blog/2019/02/04/introducing-delta-time-travel-for-large-scale-data-lakes.html)
 
 # COMMAND ----------
@@ -412,10 +416,10 @@ spark.sql("SELECT COUNT(*) FROM loans_delta VERSION AS OF 0").show()
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ##![Delta Lake Logo Tiny](https://pages.databricks.com/rs/094-YMS-629/images/delta-lake-tiny-logo.png) Full DML Support: `DELETE`, `UPDATE`, `MERGE INTO`
-# MAGIC 
-# MAGIC Delta Lake brings ACID transactions and full DML support to data lakes.
-# MAGIC 
+# MAGIC ##![Delta Lake Logo Tiny](https://pages.databricks.com/rs/094-YMS-629/images/delta-lake-tiny-logo.png) Full DML Support: `DELETE`, `UPDATE`, `MERGE INTO` (UPSERT)
+# MAGIC
+# MAGIC Delta Lake brings ACID transactions and full DML (Data Manipulation Language) support to data lakes.
+# MAGIC
 # MAGIC >Parquet does **not** support these commands - they are unique to Delta Lake.
 
 # COMMAND ----------
@@ -438,7 +442,7 @@ spark.sql("SELECT COUNT(*) FROM loans_delta VERSION AS OF 0").show()
 # COMMAND ----------
 
 # MAGIC %md **Delete the individual user's data with a single `DELETE` command using Delta Lake.**
-# MAGIC 
+# MAGIC
 # MAGIC Note: The `DELETE` command isn't supported in Parquet.
 
 # COMMAND ----------
@@ -477,12 +481,12 @@ spark.sql("SELECT COUNT(*) FROM loans_delta VERSION AS OF 0").show()
 
 # COMMAND ----------
 
-# MAGIC %md ###![Delta Lake Logo Tiny](https://pages.databricks.com/rs/094-YMS-629/images/delta-lake-tiny-logo.png) Support Change Data Capture Workflows & Other Ingest Use Cases via `MERGE INTO`
+# MAGIC %md ###![Delta Lake Logo Tiny](https://pages.databricks.com/rs/094-YMS-629/images/delta-lake-tiny-logo.png) Support Change Data Capture Workflows & Other Ingest Use Cases via `MERGE INTO` (UPSERT)
 
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC With a legacy data pipeline, to insert or update a table, you must:
+# MAGIC With a **legacy** data pipeline, to insert or update a table, **you must**:
 # MAGIC 1. Identify the new rows to be inserted
 # MAGIC 2. Identify the rows that will be replaced (i.e. updated)
 # MAGIC 3. Identify all of the rows that are not impacted by the insert or update
@@ -490,15 +494,15 @@ spark.sql("SELECT COUNT(*) FROM loans_delta VERSION AS OF 0").show()
 # MAGIC 5. Delete the original table (and all of those associated files)
 # MAGIC 6. "Rename" the temp table back to the original table name
 # MAGIC 7. Drop the temp table
-# MAGIC 
+# MAGIC
 # MAGIC <img src="https://pages.databricks.com/rs/094-YMS-629/images/merge-into-legacy.gif" alt='Merge process' width=600/>
-# MAGIC 
-# MAGIC 
+# MAGIC
+# MAGIC
 # MAGIC #### INSERT or UPDATE with Delta Lake
-# MAGIC 
+# MAGIC
 # MAGIC 2-step process: 
 # MAGIC 1. Identify rows to insert or update
-# MAGIC 2. Use `MERGE`
+# MAGIC 2. Use `MERGE` in order to **upsert** new data
 
 # COMMAND ----------
 
@@ -506,6 +510,7 @@ spark.sql("SELECT COUNT(*) FROM loans_delta VERSION AS OF 0").show()
 data = [(4420, 22000, 21500.00, "NY", "update", datetime.now()),  # record to update
         (99999, 10000, 1338.55, "CA", "insert", datetime.now())]  # record to insert
 schema = spark.table("loans_delta").schema
+
 spark.createDataFrame(data, schema).createOrReplaceTempView("merge_table")
 spark.sql("SELECT * FROM merge_table").show()
 
@@ -560,13 +565,17 @@ cleanup_paths_and_tables()
 
 # COMMAND ----------
 
+spark.sql(f"DROP SCHEMA IF EXISTS {db}")
+
+# COMMAND ----------
+
 # MAGIC %md <img src="https://docs.delta.io/latest/_static/delta-lake-logo.png" width=300/>
 
 # COMMAND ----------
 
 # MAGIC %md #Join the community!
-# MAGIC 
-# MAGIC 
+# MAGIC
+# MAGIC
 # MAGIC * [Delta Lake on GitHub](https://github.com/delta-io/delta)
 # MAGIC * [Delta Lake Slack Channel](https://delta-users.slack.com/) ([Registration Link](https://join.slack.com/t/delta-users/shared_invite/enQtNTY1NDg0ODcxOTI1LWJkZGU3ZmQ3MjkzNmY2ZDM0NjNlYjE4MWIzYjg2OWM1OTBmMWIxZTllMjg3ZmJkNjIwZmE1ZTZkMmQ0OTk5ZjA))
 # MAGIC * [Public Mailing List](https://groups.google.com/forum/#!forum/delta-users)
