@@ -249,7 +249,7 @@ spark.sql("select * from loans_delta").show(3)
 
 # MAGIC %md ### Write 2 different data streams into our Delta Lake table at the same time.
 # MAGIC
-# MAGIC ⚠️ BE SURE YOU STOP THE STREAMS BELOW TO AVOID INCURRUING CHARGES ⚠️
+# MAGIC ⚠️ BE SURE YOU STOP THE STREAMS BELOW TO AVOID INCURRING CHARGES ⚠️
 
 # COMMAND ----------
 
