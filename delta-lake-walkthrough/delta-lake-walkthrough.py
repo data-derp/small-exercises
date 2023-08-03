@@ -151,18 +151,50 @@ dbutils.fs.cp(f"file:{saved_filename}", f"{working_directory}/{filename}")
 
 # COMMAND ----------
 
-# MAGIC %md # Getting started with <img src="https://docs.delta.io/latest/_static/delta-lake-logo.png" width=300/>
+# MAGIC %md-sandbox
+# MAGIC
+# MAGIC
+# MAGIC # Getting started with <img src="https://docs.delta.io/latest/_static/delta-lake-logo.png" width=300/>
 # MAGIC
 # MAGIC [Delta Lake](https://delta.io/) is an open storage format used to save your data in your Lakehouse. Delta provides an abstraction layer on top of files. It's the storage foundation of your Lakehouse.
 # MAGIC
-# MAGIC * **ACID Transactions**: Ensures data integrity and read consistency with complex, concurrent data pipelines.
-# MAGIC * **Unified Batch and Streaming Source and Sink**: A table in Delta Lake is both a batch table, as well as a streaming source and sink. Streaming data ingest, batch historic backfill, and interactive queries all just work out of the box. 
-# MAGIC * **Schema Enforcement and Evolution**: Ensures data cleanliness by blocking writes with unexpected.
-# MAGIC * **Time Travel**: Query previous versions of the table by time or version number.
-# MAGIC * **Deletes and upserts**: Supports deleting and upserting into tables with programmatic APIs.
-# MAGIC * **Open Format**: Stored as Parquet format in blob storage.
-# MAGIC * **Audit History**: History of all the operations that happened in the table.
-# MAGIC * **Scalable Metadata management**: Able to handle millions of files are scaling the metadata operations with Spark.
+# MAGIC ## Why Delta Lake?
+# MAGIC
+# MAGIC Running ingestion pipeline on Cloud Storage can be very challenging. Data teams are typically facing the following challenges:
+# MAGIC
+# MAGIC * Hard to append data *(Adding newly arrived data leads to incorrect reads)*
+# MAGIC * Modification of existing data is difficult (*GDPR/CCPA requires making fine grained changes to existing data lake)*
+# MAGIC * Jobs failing mid way (*Half of the data appears in the data lake, the rest is missing)*
+# MAGIC * Real-time operations (*Mixing streaming and batch leads to inconsistency)*
+# MAGIC * Costly to keep historical versions of the data (*Regulated environments require reproducibility, auditing, governance)*
+# MAGIC * Difficult to handle large metadata (*For large data lakes the metadata itself becomes difficult to manage)*
+# MAGIC * “Too many files” problems (*Data lakes are not great at handling millions of small files)*
+# MAGIC * Hard to get great performance (*Partitioning the data for performance is error-prone and difficult to change)*
+# MAGIC * Data quality issues (*It’s a constant headache to ensure that all the data is correct and high quality)*
+# MAGIC
+# MAGIC Theses challenges have a real impact on team efficiency and productivity, spending unecessary time fixing low-level, technical issues instead on focusing on the high-level, business implementation.
+# MAGIC
+# MAGIC Because Delta Lake solves all the low level technical challenges saving PB of data in your lakehouse, it let you focus on implementing simple data pipeline while providing blazing-fast query answers for your BI & Analytics reports.
+# MAGIC
+# MAGIC In addition, Delta Lake being a fully open source project under the Linux Foundation and adopted by most of the data players, you know you own your own data and won't have vendor lock-in.
+# MAGIC
+# MAGIC ## Delta Lake capabilities?
+# MAGIC
+# MAGIC You can think about Delta as a file format that your engine can leverage to bring the following capabilities out of the box:
+# MAGIC
+# MAGIC <img src="https://github.com/QuentinAmbard/databricks-demo/raw/main/retail/resources/images/delta-lake-acid.png" style="width:400px; float: right; margin: 0px 0px 0px 0px"/>
+# MAGIC
+# MAGIC
+# MAGIC
+# MAGIC * ACID transactions
+# MAGIC * Support for DELETE/UPDATE/MERGE
+# MAGIC * Unify batch & streaming
+# MAGIC * Time Travel
+# MAGIC * Clone zero copy
+# MAGIC * Generated partitions
+# MAGIC * CDF - Change Data Flow (DBR runtime)
+# MAGIC * Blazing-fast queries
+# MAGIC
 
 # COMMAND ----------
 
