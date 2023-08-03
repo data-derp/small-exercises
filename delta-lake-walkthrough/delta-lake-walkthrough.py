@@ -2,9 +2,9 @@
 # MAGIC %md 
 # MAGIC
 # MAGIC # Introduction to Delta Lake
-# MAGIC 
+# MAGIC
 # MAGIC This notebook is a modified version of [this awesome demo](https://www.databricks.com/resources/demos/videos/lakehouse-platform/delta-lake) from Databricks 
-# MAGIC 
+# MAGIC
 # MAGIC ### Unifying Batch and Streaming Processing
 # MAGIC
 # MAGIC ### Bringing ACID to Spark
@@ -153,7 +153,7 @@ dbutils.fs.cp(f"file:{saved_filename}", f"{working_directory}/{filename}")
 
 # MAGIC %md # Getting started with <img src="https://docs.delta.io/latest/_static/delta-lake-logo.png" width=300/>
 # MAGIC
-# MAGIC An open-source storage layer for data lakes that brings ACID transactions to Apache Spark™ and big data workloads.
+# MAGIC [Delta Lake](https://delta.io/) is an open storage format used to save your data in your Lakehouse. Delta provides an abstraction layer on top of files. It's the storage foundation of your Lakehouse.
 # MAGIC
 # MAGIC * **ACID Transactions**: Ensures data integrity and read consistency with complex, concurrent data pipelines.
 # MAGIC * **Unified Batch and Streaming Source and Sink**: A table in Delta Lake is both a batch table, as well as a streaming source and sink. Streaming data ingest, batch historic backfill, and interactive queries all just work out of the box. 
