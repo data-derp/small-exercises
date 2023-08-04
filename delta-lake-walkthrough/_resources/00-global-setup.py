@@ -234,99 +234,99 @@ def wait_for_table(table_name, timeout_duration=120):
 
 # COMMAND ----------
 
-from pyspark.sql.functions import col
-# import mlflow
+# from pyspark.sql.functions import col
+# # import mlflow
 
-import databricks
-from datetime import datetime
+# import databricks
+# from datetime import datetime
 
-def get_automl_run(name):
-  #get the most recent automl run
-  df = spark.table("hive_metastore.dbdemos_metadata.automl_experiment").filter(col("name") == name).orderBy(col("date").desc()).limit(1)
-  return df.collect()
+# def get_automl_run(name):
+#   #get the most recent automl run
+#   df = spark.table("hive_metastore.dbdemos_metadata.automl_experiment").filter(col("name") == name).orderBy(col("date").desc()).limit(1)
+#   return df.collect()
 
-#Get the automl run information from the hive_metastore.dbdemos_metadata.automl_experiment table. 
-#If it's not available in the metadata table, start a new run with the given parameters
-def get_automl_run_or_start(name, model_name, dataset, target_col, timeout_minutes, move_to_production = False):
-  spark.sql("create database if not exists hive_metastore.dbdemos_metadata")
-  spark.sql("create table if not exists hive_metastore.dbdemos_metadata.automl_experiment (name string, date string)")
-  result = get_automl_run(name)
-  if len(result) == 0:
-    print("No run available, start a new Auto ML run, this will take a few minutes...")
-    start_automl_run(name, model_name, dataset, target_col, timeout_minutes, move_to_production)
-    return (False, get_automl_run(name))
-  return (True, result[0])
+# #Get the automl run information from the hive_metastore.dbdemos_metadata.automl_experiment table. 
+# #If it's not available in the metadata table, start a new run with the given parameters
+# def get_automl_run_or_start(name, model_name, dataset, target_col, timeout_minutes, move_to_production = False):
+#   spark.sql("create database if not exists hive_metastore.dbdemos_metadata")
+#   spark.sql("create table if not exists hive_metastore.dbdemos_metadata.automl_experiment (name string, date string)")
+#   result = get_automl_run(name)
+#   if len(result) == 0:
+#     print("No run available, start a new Auto ML run, this will take a few minutes...")
+#     start_automl_run(name, model_name, dataset, target_col, timeout_minutes, move_to_production)
+#     return (False, get_automl_run(name))
+#   return (True, result[0])
 
 
-#Start a new auto ml classification task and save it as metadata.
-def start_automl_run(name, model_name, dataset, target_col, timeout_minutes = 5, move_to_production = False):
-  from databricks import automl
-  automl_run = databricks.automl.classify(
-    dataset = dataset,
-    target_col = target_col,
-    timeout_minutes = timeout_minutes
-  )
-  experiment_id = automl_run.experiment.experiment_id
-  path = automl_run.experiment.name
-  data_run_id = mlflow.search_runs(experiment_ids=[automl_run.experiment.experiment_id], filter_string = "tags.mlflow.source.name='Notebook: DataExploration'").iloc[0].run_id
-  exploration_notebook_id = automl_run.experiment.tags["_databricks_automl.exploration_notebook_id"]
-  best_trial_notebook_id = automl_run.experiment.tags["_databricks_automl.best_trial_notebook_id"]
+# #Start a new auto ml classification task and save it as metadata.
+# def start_automl_run(name, model_name, dataset, target_col, timeout_minutes = 5, move_to_production = False):
+#   from databricks import automl
+#   automl_run = databricks.automl.classify(
+#     dataset = dataset,
+#     target_col = target_col,
+#     timeout_minutes = timeout_minutes
+#   )
+#   experiment_id = automl_run.experiment.experiment_id
+#   path = automl_run.experiment.name
+#   data_run_id = mlflow.search_runs(experiment_ids=[automl_run.experiment.experiment_id], filter_string = "tags.mlflow.source.name='Notebook: DataExploration'").iloc[0].run_id
+#   exploration_notebook_id = automl_run.experiment.tags["_databricks_automl.exploration_notebook_id"]
+#   best_trial_notebook_id = automl_run.experiment.tags["_databricks_automl.best_trial_notebook_id"]
 
-  cols = ["name", "date", "experiment_id", "experiment_path", "data_run_id", "best_trial_run_id", "exploration_notebook_id", "best_trial_notebook_id"]
-  spark.createDataFrame(data=[(name, datetime.today().isoformat(), experiment_id, path, data_run_id, automl_run.best_trial.mlflow_run_id, exploration_notebook_id, best_trial_notebook_id)], schema = cols).write.mode("append").option("mergeSchema", "true").saveAsTable("hive_metastore.dbdemos_metadata.automl_experiment")
-  #Create & save the first model version in the MLFlow repo (required to setup hooks etc)
-  model_registered = mlflow.register_model(f"runs:/{automl_run.best_trial.mlflow_run_id}/model", model_name)
-  set_experiment_permission(path)
-  if move_to_production:
-    client = mlflow.tracking.MlflowClient()
-    print("registering model version "+model_registered.version+" as production model")
-    client.transition_model_version_stage(name = model_name, version = model_registered.version, stage = "Production", archive_existing_versions=True)
-  return get_automl_run(name)
+#   cols = ["name", "date", "experiment_id", "experiment_path", "data_run_id", "best_trial_run_id", "exploration_notebook_id", "best_trial_notebook_id"]
+#   spark.createDataFrame(data=[(name, datetime.today().isoformat(), experiment_id, path, data_run_id, automl_run.best_trial.mlflow_run_id, exploration_notebook_id, best_trial_notebook_id)], schema = cols).write.mode("append").option("mergeSchema", "true").saveAsTable("hive_metastore.dbdemos_metadata.automl_experiment")
+#   #Create & save the first model version in the MLFlow repo (required to setup hooks etc)
+#   model_registered = mlflow.register_model(f"runs:/{automl_run.best_trial.mlflow_run_id}/model", model_name)
+#   set_experiment_permission(path)
+#   if move_to_production:
+#     client = mlflow.tracking.MlflowClient()
+#     print("registering model version "+model_registered.version+" as production model")
+#     client.transition_model_version_stage(name = model_name, version = model_registered.version, stage = "Production", archive_existing_versions=True)
+#   return get_automl_run(name)
 
-#Generate nice link for the given auto ml run
-def display_automl_link(name, model_name, dataset, target_col, timeout_minutes = 5, move_to_production = False):
-  from_cache, r = get_automl_run_or_start(name, model_name, dataset, target_col, timeout_minutes, move_to_production)
-  if from_cache:
-    html = f"""For exploratory data analysis, open the <a href="/#notebook/{r["exploration_notebook_id"]}">data exploration notebook</a><br/><br/>"""
-    html += f"""To view the best performing model, open the <a href="/#notebook/{r["best_trial_notebook_id"]}">best trial notebook</a><br/><br/>"""
-    html += f"""To view details about all trials, navigate to the <a href="/#mlflow/experiments/{r["experiment_id"]}/s?orderByKey=metrics.%60val_f1_score%60&orderByAsc=false">MLflow experiment</>"""
-    displayHTML(html)
+# #Generate nice link for the given auto ml run
+# def display_automl_link(name, model_name, dataset, target_col, timeout_minutes = 5, move_to_production = False):
+#   from_cache, r = get_automl_run_or_start(name, model_name, dataset, target_col, timeout_minutes, move_to_production)
+#   if from_cache:
+#     html = f"""For exploratory data analysis, open the <a href="/#notebook/{r["exploration_notebook_id"]}">data exploration notebook</a><br/><br/>"""
+#     html += f"""To view the best performing model, open the <a href="/#notebook/{r["best_trial_notebook_id"]}">best trial notebook</a><br/><br/>"""
+#     html += f"""To view details about all trials, navigate to the <a href="/#mlflow/experiments/{r["experiment_id"]}/s?orderByKey=metrics.%60val_f1_score%60&orderByAsc=false">MLflow experiment</>"""
+#     displayHTML(html)
 
-def reset_automl_run(model_name):
-  if spark._jsparkSession.catalog().tableExists('hive_metastore.dbdemos_metadata.automl_experiment'):
-      spark.sql(f"delete from hive_metastore.dbdemos_metadata.automl_experiment where name='{model_name}'")
+# def reset_automl_run(model_name):
+#   if spark._jsparkSession.catalog().tableExists('hive_metastore.dbdemos_metadata.automl_experiment'):
+#       spark.sql(f"delete from hive_metastore.dbdemos_metadata.automl_experiment where name='{model_name}'")
 
-#Once the automl experiment is created, we assign CAN MANAGE to all users as it's shared in the workspace
-def set_experiment_permission(experiment_path):
-  url = dbutils.notebook.entry_point.getDbutils().notebook().getContext().extraContext().apply("api_url")
-  import requests
-  pat_token = dbutils.notebook.entry_point.getDbutils().notebook().getContext().apiToken().get()
-  headers =  {"Authorization": "Bearer " + pat_token, 'Content-type': 'application/json'}
-  status = requests.get(url+"/api/2.0/workspace/get-status", params = {"path": experiment_path}, headers=headers).json()
-  #Set can manage to all users to the experiment we created as it's shared among all
-  params = {"access_control_list": [{"group_name": "users","permission_level": "CAN_MANAGE"}]}
-  permissions = requests.patch(f"{url}/api/2.0/permissions/experiments/{status['object_id']}", json = params, headers=headers)
-  if permissions.status_code != 200:
-    print("ERROR: couldn't set permission to all users to the autoML experiment")
+# #Once the automl experiment is created, we assign CAN MANAGE to all users as it's shared in the workspace
+# def set_experiment_permission(experiment_path):
+#   url = dbutils.notebook.entry_point.getDbutils().notebook().getContext().extraContext().apply("api_url")
+#   import requests
+#   pat_token = dbutils.notebook.entry_point.getDbutils().notebook().getContext().apiToken().get()
+#   headers =  {"Authorization": "Bearer " + pat_token, 'Content-type': 'application/json'}
+#   status = requests.get(url+"/api/2.0/workspace/get-status", params = {"path": experiment_path}, headers=headers).json()
+#   #Set can manage to all users to the experiment we created as it's shared among all
+#   params = {"access_control_list": [{"group_name": "users","permission_level": "CAN_MANAGE"}]}
+#   permissions = requests.patch(f"{url}/api/2.0/permissions/experiments/{status['object_id']}", json = params, headers=headers)
+#   if permissions.status_code != 200:
+#     print("ERROR: couldn't set permission to all users to the autoML experiment")
 
-  #try to find the experiment id
-  result = re.search(r"_([a-f0-9]{8}_[a-f0-9]{4}_[a-f0-9]{4}_[a-f0-9]{4}_[a-f0-9]{12})_", experiment_path)
-  if result is not None and len(result.groups()) > 0:
-    ex_id = result.group(0)
-  else:
-    print(experiment_path)
-    ex_id = experiment_path[experiment_path.rfind('/')+1:]
+#   #try to find the experiment id
+#   result = re.search(r"_([a-f0-9]{8}_[a-f0-9]{4}_[a-f0-9]{4}_[a-f0-9]{4}_[a-f0-9]{12})_", experiment_path)
+#   if result is not None and len(result.groups()) > 0:
+#     ex_id = result.group(0)
+#   else:
+#     print(experiment_path)
+#     ex_id = experiment_path[experiment_path.rfind('/')+1:]
 
-  path = experiment_path
-  path = path[:path.rfind('/')]+"/"
-  #List to get the folder with the notebooks from the experiment
-  folders = requests.get(url+"/api/2.0/workspace/list", params = {"path": path}, headers=headers).json()
-  for f in folders['objects']:
-    if f['object_type'] == 'DIRECTORY' and ex_id in f['path']:
-        #Set the permission of the experiment notebooks to all
-        permissions = requests.patch(f"{url}/api/2.0/permissions/directories/{f['object_id']}", json = params, headers=headers)
-        if permissions.status_code != 200:
-          print("ERROR: couldn't set permission to all users to the autoML experiment notebooks")
+#   path = experiment_path
+#   path = path[:path.rfind('/')]+"/"
+#   #List to get the folder with the notebooks from the experiment
+#   folders = requests.get(url+"/api/2.0/workspace/list", params = {"path": path}, headers=headers).json()
+#   for f in folders['objects']:
+#     if f['object_type'] == 'DIRECTORY' and ex_id in f['path']:
+#         #Set the permission of the experiment notebooks to all
+#         permissions = requests.patch(f"{url}/api/2.0/permissions/directories/{f['object_id']}", json = params, headers=headers)
+#         if permissions.status_code != 200:
+#           print("ERROR: couldn't set permission to all users to the autoML experiment notebooks")
 
 # COMMAND ----------
 

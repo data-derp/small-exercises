@@ -1,11 +1,4 @@
 -- Databricks notebook source
--- MAGIC %md 
--- MAGIC ### A cluster has been created for this demo
--- MAGIC To run this demo, just select the cluster `dbdemos-delta-lake-syedalimasroor_r` from the dropdown menu ([open cluster configuration](https://dbc-7eebc7b9-f149.cloud.databricks.com/#setting/clusters/0728-105529-lr8hsgms/configuration)). <br />
--- MAGIC *Note: If the cluster was deleted after 30 days, you can re-create it with `dbdemos.create_cluster('delta-lake')` or re-install the demo: `dbdemos.install('delta-lake')`*
-
--- COMMAND ----------
-
 -- MAGIC %python
 -- MAGIC dbutils.widgets.dropdown("reset_all_data", "false", ["true", "false"], "Reset all data")
 
@@ -26,6 +19,10 @@
 
 -- COMMAND ----------
 
+-- MAGIC %md **Please note** Set the flag `Reset all data` above before CMD 1 to true if you are running this notebook for the first time
+
+-- COMMAND ----------
+
 -- DBTITLE 1,Init the demo data under ${raw_data_location}/user_parquet.
 -- MAGIC %run ./_resources/00-setup $reset_all_data=$reset_all_data
 
@@ -33,9 +30,9 @@
 
 -- MAGIC %python
 -- MAGIC
--- MAGIC raw_data_location="/Users/syedalimasroor.r@thoughtworks.com/demos/retail_dbdemos/delta"
+-- MAGIC # The data is at the below location on the cloud integrated with this databricks instance.
+-- MAGIC # To check the data from within the databricks UI, go to "DATA/Data Explorer/dbdemos/YOURUSERNAME/user_delta"
 -- MAGIC
--- MAGIC #For this demo, We'll use a synthetic dataset containing user information, saved under ${raw_data_location}/user_parquet.
 -- MAGIC print(f"Our user dataset is stored under raw_data_location={raw_data_location}/user_parquet")
 -- MAGIC dbutils.widgets.text("raw_data_location", raw_data_location)
 
@@ -43,7 +40,7 @@
 
 -- MAGIC %md ## ![](https://pages.databricks.com/rs/094-YMS-629/images/delta-lake-tiny-logo.png) Creating our first Delta Lake table
 -- MAGIC
--- MAGIC Delta is the default file and table format using Databricks. You are likely already using delta without knowing it!
+-- MAGIC Delta is the default file and table format using Databricks. You are likely already using delta without knowing it! (If you have created a table in any of the exercise before !)
 -- MAGIC
 -- MAGIC Let's create a few table to see how to use Delta:
 
@@ -70,7 +67,7 @@ SELECT * FROM user_delta;
 
 -- COMMAND ----------
 
--- DBTITLE 1,Create Delta table using python / Scala API
+-- DBTITLE 1,Create Delta table using python / Scala API (Since the data is already written in the "user_delta" table above, there will be no updates to the table)
 -- MAGIC %python
 -- MAGIC data_parquet = spark.read.parquet(raw_data_location+"/user_parquet")
 -- MAGIC
@@ -104,8 +101,12 @@ SELECT * FROM user_delta;
 -- COMMAND ----------
 
 -- MAGIC %python
--- MAGIC # Read the insertion of data
+-- MAGIC # Read the the data from the user_delta table in a datastream (using spark.readStream) and create a temporary view
 -- MAGIC spark.readStream.option("ignoreDeletes", "true").option("ignoreChanges", "true").table("user_delta").createOrReplaceTempView("user_delta_readStream")
+
+-- COMMAND ----------
+
+-- MAGIC %md Now the below select queries are actually the streaming queries on the "user_delta" table via the "view" just created above.
 
 -- COMMAND ----------
 
@@ -122,14 +123,14 @@ select count(*) from user_delta_readStream
 -- COMMAND ----------
 
 -- DBTITLE 1,Let's add a new user, it'll appear in our previous aggregation as the stream picks up the update
--- insert into user_delta (id, creation_date, firstname, lastname, email, address, gender, age_group) 
---     values (99999, now(), 'Quentin', 'Ambard', 'quentin.ambard@databricks.com', 'FR', '2', 3) 
-
--- insert into user_delta (id, creation_date, firstname, lastname, email, address, gender, age_group) 
---     values (99991, now(), 'Syed', 'Rizvi', 'syed.rizvi@gmail.com', 'IN', '2', 3)
+-- A few seconds after running the below query, check the output from CMD 14 and 16. The outputs should reflect the changes for the new user
 
 insert into user_delta (id, creation_date, firstname, lastname, email, address, gender, age_group) 
-  values (99992, now(), 'Syed', 'Rizvi', 'syed.rizvi@gmail.com', 'IN', '2', 3)     
+  values (99999, now(), 'joe', 'smith', 'joe.smith@abc.com', 'IN', '2', 3)     
+
+
+-- COMMAND ----------
+
 
 
 -- COMMAND ----------
@@ -142,7 +143,19 @@ insert into user_delta (id, creation_date, firstname, lastname, email, address, 
 -- COMMAND ----------
 
 -- Running `UPDATE` on the Delta Lake table
-UPDATE user_delta SET age_group = 4 WHERE id = 99999
+UPDATE user_delta SET age_group = 5 WHERE id = 99999
+
+-- COMMAND ----------
+
+-- MAGIC %md Running the batch query below for the above udpate will immediately give the updated result. In a few more seconds, the updates will reflect in the in the aggregate streaming queries in CMD 14 and 15 too. 
+-- MAGIC
+-- MAGIC **NOTE** - The update querie increase the number or records in the views created from the delta lake tables. This becomes handy for maintaining versions of data as per time travel section below. So you will observe additional records in the out of aggregate streaming queries in CMD 14 and 15 too. It will be interesting to check this out Databricks UI in Data - Data Explorer - dbdemos - <YOURUSERNAME> - user_delta table - history section !
+-- MAGIC
+
+-- COMMAND ----------
+
+select * from user_delta where id=99999
+
 
 -- COMMAND ----------
 
@@ -150,16 +163,23 @@ DELETE FROM user_delta WHERE id = 99999
 
 -- COMMAND ----------
 
+-- MAGIC %md DELETE will delete the record so just like UPDATE, if we run a batch query now, it will not give any output. But the aggregate streaming queries in CMD 14 and 15 will get affected to maintain versioning
+-- MAGIC
+
+-- COMMAND ----------
+
 -- DBTITLE 1,UPSERT: update if exists, insert otherwise
--- Let's create a table containing a list of changes we want to apply to the user table (ex: CDC flow)
+-- Let's create a table containing a list of changes we want to apply to the user table
 create table if not exists user_updates 
   (id bigint, creation_date TIMESTAMP, firstname string, lastname string, email string, address string, gender int, age_group int);
   
 delete from user_updates;
 
+  
+
 insert into user_updates values (1,     now(), 'Marco',   'polo',   'marco@polo.com',    'US', 2, 3); 
 insert into user_updates values (2,     now(), 'John',    'Doe',    'john@doe.com',      'US', 2, 3);
-insert into user_updates values (99999, now(), 'Quentin', 'Ambard', 'qa@databricks.com', 'FR', 2, 3);
+insert into user_updates values (99999, now(), 'joe', 'smith', 'joe.smith@abc.com', 'IN', 2, 3)  ;
 select * from user_updates;
 
 -- COMMAND ----------
@@ -173,6 +193,10 @@ MERGE INTO user_delta as d USING user_updates as m
     THEN INSERT * ;
   
 select * from user_delta where id in (1 ,2, 99999)
+
+-- COMMAND ----------
+
+select * from user_delta;
 
 -- COMMAND ----------
 
@@ -193,7 +217,7 @@ select * from user_delta where id in (1 ,2, 99999)
 
 -- This command will fail as we insert a user with a null id::
 INSERT INTO user_delta (id, creation_date, firstname, lastname, email, address, gender, age_group) 
-                VALUES (null, now(), 'Quentin', 'Ambard', 'quentin.ambard@databricks.com', 'FR', '2', 3) 
+                VALUES (null, now(), 'sample', 'user', 'sample@user.com', 'FR', '2', 3) 
 
 -- COMMAND ----------
 
@@ -261,37 +285,6 @@ VACUUM user_delta RETAIN 200 HOURS;
 
 -- COMMAND ----------
 
--- MAGIC %md
--- MAGIC ## CLONE Delta Tables
--- MAGIC You can create a copy of an existing Delta table at a specific version using the `clone` command. This is very useful to get data from a PROD environment to a STAGING one, or archive a specific version for regulatory reason.
--- MAGIC
--- MAGIC There are two types of clones:
--- MAGIC * A **deep clone** is a clone that copies the source table data to the clone target in addition to the metadata of the existing table. 
--- MAGIC * A **shallow clone** is a clone that does not copy the data files to the clone target. The table metadata is equivalent to the source. These clones are cheaper to create.
--- MAGIC
--- MAGIC Any changes made to either deep or shallow clones affect only the clones themselves and not the source table.
--- MAGIC
--- MAGIC *Note: Shallow clone are pointers to the main table. Running a VACUUM may delete the underlying files and break the shallow clone!*
-
--- COMMAND ----------
-
--- DBTITLE 1,Shallow clone (zero copy)
-CREATE TABLE IF NOT EXISTS user_delta_clone
-  SHALLOW CLONE user_delta
-  VERSION AS OF 2;
-
-SELECT * FROM user_delta_clone;
-
--- COMMAND ----------
-
--- DBTITLE 1,Deep clone (copy data)
-CREATE TABLE IF NOT EXISTS user_delta_clone_deep
-  DEEP CLONE user_delta;
-
-SELECT * FROM user_delta_clone_deep;
-
--- COMMAND ----------
-
 -- MAGIC %md 
 -- MAGIC ### Generated columns
 -- MAGIC
@@ -344,11 +337,3 @@ SELECT * FROM user_delta_clone_deep;
 -- MAGIC [Delta Sharing](https://delta.io/sharing/) is an open standard to easily share your tables with external organization, using Databricks or any other system / cloud provider.
 -- MAGIC
 -- MAGIC For more details, check our demo `dbdemos.install('delta-sharing')` !
-
--- COMMAND ----------
-
--- MAGIC %md 
--- MAGIC
--- MAGIC Next: Discover how to boost your queries with [Delta Lake performance features]($./02-Delta-Lake-Performance) or go back to [00-Delta-Lake-Introduction]($./00-Delta-Lake-Introduction).
--- MAGIC
--- MAGIC
