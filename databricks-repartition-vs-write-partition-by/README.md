@@ -1,4 +1,4 @@
-# Wrangling in Spark
+# Repartition versus write partition
 
 ## Quickstart
 1. Set up a [Databricks Account](https://github.com/data-derp/documentation/blob/master/databricks/README.md) if you don't already have one
@@ -8,7 +8,7 @@
 
    ![databricks-import](https://github.com/data-derp/documentation/blob/master/databricks/assets/databricks-import.png?raw=true)
 
-4. Import the `wrangling-in-spark.dbc` notebook archive using the URL method: `https://github.com/data-derp/small-exercises/blob/master/wrangling-in-spark/wrangling-in-spark.dbc?raw=true`
+4. Import the `databricks-repartition-vs-write-partition-by` notebook archive using the URL method: `https://github.com/data-derp/small-exercises/blob/master/databricks-repartition-vs-write-partition-by/databricks-repartition-vs-write-partition-by.dbc`
 
    ![databricks-import-url](https://github.com/data-derp/documentation/blob/master/databricks/assets/databricks-import-url.png?raw=true)
 
