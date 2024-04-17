@@ -6,9 +6,9 @@
 
 # MAGIC %md
 # MAGIC ## Window Functions
-# MAGIC 
+# MAGIC
 # MAGIC Pyspark window functions are useful when you want to examine relationships within groups of data rather than between groups of data (as for groupBy)
-# MAGIC 
+# MAGIC
 # MAGIC To use them you start by defining a window function then select a separate function or set of functions to operate within that window
 
 # COMMAND ----------
@@ -41,7 +41,7 @@ df.show()
 
 # MAGIC %md
 # MAGIC ## Simple aggregation functions
-# MAGIC 
+# MAGIC
 # MAGIC we can use the standard group by aggregations with window functions. These functions use the simplest form of window which just defines grouping
 
 # COMMAND ----------
@@ -69,7 +69,7 @@ df_aggregations.show()
 
 # MAGIC %md
 # MAGIC ## Row wise ordering and ranking functions
-# MAGIC 
+# MAGIC
 # MAGIC We can also use window funtions to order and rank data. These functions add an element to the definition of the window which defines both grouping AND ordering
 
 # COMMAND ----------
@@ -89,7 +89,7 @@ df_ranks = df.select(
   # dense rank does not account for previous equal rankings
   'ranking_dense_rank', fn.dense_rank().over(ranking_window)
 ).withColumn(
-  # percent rank ranges between 0-1 not 0-100
+  # calculate percentile_rank ranges between 0-1 not 0-100. You can read more about the percentile rank formula [here](https://docs.yugabyte.com/preview/api/ysql/exprs/window_functions/function-syntax-semantics/percent-rank-cume-dist-ntile/)
   'ranking_percent_rank', fn.percent_rank().over(ranking_window)
 ).withColumn(
   # fn.ntile takes a parameter for now many 'buckets' to divide rows into when ranking
@@ -102,9 +102,9 @@ df_ranks.show()
 
 # MAGIC %md
 # MAGIC ## Creating lagged columns
-# MAGIC 
+# MAGIC
 # MAGIC If we want to conduct operations like calculating the difference between subsequent operations in a group, we can use window functions to create the lagged values we require to perform the calculation. Where there is no preceding lag value, a null entry will be inserted not a zero.
-# MAGIC 
+# MAGIC
 # MAGIC The inverse of lag is lead. Effectively fn.lag(n) == fn.lead(-n)
 
 # COMMAND ----------
@@ -135,11 +135,11 @@ df_lagged.show()
 
 # MAGIC %md
 # MAGIC ### Cumulative Calculations (Running totals and averages)
-# MAGIC 
+# MAGIC
 # MAGIC There are often good reasons to want to create a running total or running average column. In some cases we might want running totals for subsets of data. Window functions can be useful for that sort of thing. 
-# MAGIC 
+# MAGIC
 # MAGIC In order to calculate such things we need to add yet another element to the window. Now we account for partition, order and which rows should be covered by the function. This can be done in two ways we can use **rangeBetween** to define how similar values in the window must be to be considered, or we can use **rowsBetween** to define how many rows should be considered. The current row is considered row zero, the following rows are numbered positively and the preceding rows negatively. For cumulative calculations you can define "all previous rows" with **Window.unboundedPreceding** and "all following rows" with **Window.unboundedFolowing**
-# MAGIC 
+# MAGIC
 # MAGIC Note that the window may vary in size as it progresses over the rows since at the start and end part of the window may "extend past" the existing rows
 
 # COMMAND ----------
